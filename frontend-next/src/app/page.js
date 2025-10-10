@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Head from 'next/head'; // For managing document head
 import styles from "./stylesheets/home.module.css";
 
@@ -11,10 +11,10 @@ export default function Home() {
   const [height, setHeight] = useState(600);
   const [numElements, setNumElements] = useState(50);
 
-  const fetchArt = async () => {
+  const fetchArt = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/generate-art', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-art`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,11 +31,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [width, height, numElements]);
 
   useEffect(() => {
     fetchArt(); // Fetch art on initial load
-  }, []);
+  }, [fetchArt]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -63,7 +63,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Generative Art Explorer</h1>
+        <h1 className={styles.title}>PixelBloom</h1>
 
         <div className={styles.controls}>
           <label>
@@ -78,7 +78,7 @@ export default function Home() {
             Elements:
             <input type="number" value={numElements} onChange={(e) => setNumElements(Number(e.target.value))} />
           </label>
-          <button onClick={fetchArt} disabled={loading}>
+          <button onClick={fetchArt} disabled={loading} className='button'>
             {loading ? 'Generating...' : 'Generate New Art'}
           </button>
         </div>
