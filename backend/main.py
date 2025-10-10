@@ -14,10 +14,15 @@ app.add_middleware(
   allow_headers=["*"]
 )
 
-class Line(BaseModel):
+class Point(BaseModel):
   x: int
   y: int
+
+class Line(BaseModel):
+  start: Point
+  end: Point
   color: str
+  thickness: int
 
 class Circle(BaseModel):
   x: int
@@ -36,16 +41,26 @@ async def generate_art(request: ArtGenerationRequest):
   Generates random circles based on provided dimensions
   """
   lines = []
-  '''
+
   for _ in range(request.num_elements):
-    x = random.randint(0, request.width)
-    y = random.randint(0, request.height)
+    start_x = random.randint(0, request.width)
+    start_y = random.randint(0, request.height)
+    end_x = random.randint(0, request.width)
+    end_y = random.randint(0, request.height)
+
     length = random.randint(5, 50)
     color = "#%06x" % random.randint(0, 0xFFFFFF) # Random HEX Color
-    lines.append(Line(x=x, y=y, color=color))
+    thickness = random.randint(1, 5)
+    lines.append(
+      Line(
+        start=Point(x=start_x, y=start_y),
+        end=Point(x=end_x, y=end_y),  
+        color=color,
+        thickness=thickness
+      )
+    )
   
-  return lines
-  '''
+  # return lines
   circles = []
   for _ in range(request.num_elements):
     x = random.randint(0, request.width)
@@ -55,7 +70,6 @@ async def generate_art(request: ArtGenerationRequest):
     circles.append(Circle(x=x, y=y, radius=radius, color=color))
   
   return circles
-
 
 @app.get("/")
 async def root():
