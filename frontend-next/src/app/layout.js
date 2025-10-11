@@ -1,5 +1,13 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.scss";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import { ThemeProvider } from "./ThemeContext";
+import FloatingControls from "./components/FloatingControls/FloatingControls";
+import "bulma/css/bulma.min.css";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+config.autoAddCss = false;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +30,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          <Navbar />
+          {children}
+          <FloatingControls />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
