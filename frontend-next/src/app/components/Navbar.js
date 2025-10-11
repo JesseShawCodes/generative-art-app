@@ -6,7 +6,9 @@ const Navbar = () => {
     <nav className="navbar" role="navigation" aria-label="main navigation">
       <div className="navbar-brand">
         <a className="navbar-item" href="https://bulma.io">
-          PixelBloom
+          <h1>
+            PixelBloom
+          </h1>
         </a>
       </div>
     </nav>

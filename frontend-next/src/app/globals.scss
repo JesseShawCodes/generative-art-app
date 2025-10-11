@@ -1,9 +1,5 @@
 @use 'stylesheets/theme_toggle.scss';
 
-@import "tailwindcss";
-@import "../../node_modules/bulma/bulma.scss";
-
-
 /* Imports */
 
 /* Variables*/
@@ -16,6 +12,7 @@ $button-margin: 20px 20px 4px;
 $z-index-base: 99;
 $z-index-top: 100;
 $default-border-color: rgba(0, 0, 0, 0.227);
+$primary-bloom: #82243b;
 
 /* Mixins */
 @mixin floating-control-button {
@@ -31,6 +28,7 @@ $default-border-color: rgba(0, 0, 0, 0.227);
   box-shadow: $button-box-shadow;
   width: $button-size;
   height: $button-size;
+  background-color: $primary-bloom;
 }
 
 // ------------------------------------------
@@ -39,11 +37,13 @@ $default-border-color: rgba(0, 0, 0, 0.227);
 [data-theme="light"] {
   --background-color: #ffffff;
   --text-color: #000000;
+  --bulma-label-color: #000;
 }
 
 [data-theme="dark"] {
   --background-color: #121212;
   --text-color: #ffffff;
+  --bulma-label-color: #fff;
 }
 
 body {
@@ -79,22 +79,6 @@ body {
 .artist-search-card {
   width: 18rem;
 }
-
-// ------------------------------------------
-
-/* Artist Page Components */
-.song-list {
-  list-style: none;
-
-  .song-row {
-    padding: 0 20px;
-  }
-
-    li {
-      .list-color-\#CCCCCC {
-        color: #888888;
-      }
-    }}
 
 // ------------------------------------------
 

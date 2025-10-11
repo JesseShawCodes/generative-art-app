@@ -64,25 +64,24 @@ export default function Home() {
       </Head>
 
       <main className="container">
-        <h1>PixelBloom</h1>
 
         <div>
           <div className="field">
-            <label className="label">Width</label>
+            <label className="label" htmlFor="width-input">Width</label>
             <div className="control">
-              <input type="number" className="input" value={width} onChange={(e) => setWidth(Number(e.target.value))} />
+              <input id="width-input" type="range" min="100" max="1000" className="input" value={width} onChange={(e) => setWidth(Number(e.target.value))} />
             </div>
           </div>
           <div className="field">
-            <label className="label">Height</label>
+            <label className="label" htmlFor="height-input">Height</label>
             <div className="control">
-              <input type="number" className="input" value={height} onChange={(e) => setHeight(Number(e.target.value))} />
+              <input id="height-input" type="range" min="100" max="1000" className="input" value={height} onChange={(e) => setHeight(Number(e.target.value))} />
             </div>
           </div>
           <div className="field">
-            <label className="label">Elements</label>
+            <label className="label" htmlFor="elements-input">Elements</label>
             <div className="control">
-              <input type="number" className="input" value={numElements} onChange={(e) => setNumElements(Number(e.target.value))} />
+              <input id="elements-input" type="range" min="0" max="500" className="input" value={numElements} onChange={(e) => setNumElements(Number(e.target.value))} />
             </div>
           </div>
           <button onClick={fetchArt} disabled={loading} className='button'>
