@@ -13,6 +13,23 @@ $z-index-base: 99;
 $z-index-top: 100;
 $default-border-color: rgba(0, 0, 0, 0.227);
 $primary-bloom: #82243b;
+$bloom-black: #000;
+$bloom-pink: #BA3D5C;
+$primary-white: #f3dfe4;
+
+
+/* Bulma Overrides */
+$primary: $primary-bloom;
+
+@import "../../node_modules/bulma/sass/utilities/index";
+// @import "../../node_modules/bulma/sass/utilities/_all.sass";
+// @import "../../node_modules/bulma/sass/base/_all.sass";
+// @import "../../node_modules/bulma/sass/elements/_all.sass";
+// @import "../../node_modules/bulma/sass/form/_all.sass";
+// @import "../../node_modules/bulma/sass/components/_all.sass";
+// @import "../../node_modules/bulma/sass/grid/_all.sass";
+// @import "../../node_modules/bulma/sass/layout/_all.sass";
+
 
 /* Mixins */
 @mixin floating-control-button {
@@ -29,21 +46,25 @@ $primary-bloom: #82243b;
   width: $button-size;
   height: $button-size;
   background-color: $primary-bloom;
+  color: $primary-white;
 }
 
 // ------------------------------------------
 
 /* Global / Base Styles */
-[data-theme="light"] {
-  --background-color: #ffffff;
-  --text-color: #000000;
+.theme-light, [data-theme="light"] {
+  --background-color: $primary-white;
+  --text-color: $bloom-black;
   --bulma-label-color: #000;
+
+  --bulma-link-text: $primary-white;
 }
 
-[data-theme="dark"] {
+.theme-dark, [data-theme="dark"] {
   --background-color: #121212;
-  --text-color: #ffffff;
-  --bulma-label-color: #fff;
+  --text-color: $primary-white;
+  --bulma-label-color: $primary-white;
+  --bulma-link-text: $primary-white;
 }
 
 body {
