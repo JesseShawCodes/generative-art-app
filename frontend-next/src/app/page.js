@@ -1,8 +1,6 @@
 "use client";
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Head from 'next/head'; // For managing document head
-import styles from "./stylesheets/home.module.css";
-import Footer from './components/Footer';
 
 export default function Home() {
   const canvasRef = useRef(null);
@@ -62,6 +60,8 @@ export default function Home() {
         <meta name="description" content="Generative Art with Next.js and FastAPI" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <h1>Welcome to PixelBlooms</h1>
 
       <main className="container">
 

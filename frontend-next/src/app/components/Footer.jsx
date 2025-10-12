@@ -6,7 +6,7 @@ import {
 
 function Footer() {
   return (
-    <footer className="footer bg-my-gradient-footer py-4">
+    <footer className="footer py-4">
       <div className="container">
         <div className="level">
           <div className="level-left">
