@@ -26,17 +26,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    <ThemeProvider>
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
+
           <Navbar />
           {children}
           <FloatingControls />
           <Footer />
-        </ThemeProvider>
+
       </body>
     </html>
+    </ThemeProvider>
   );
 }

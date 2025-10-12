@@ -54,17 +54,14 @@ export default function Home() {
   }, [artData, width, height]);
 
   return (
-    <div>
+    <div className='container'>
       <Head>
         <title>Generative Art with Next.js</title>
         <meta name="description" content="Generative Art with Next.js and FastAPI" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h1>Welcome to PixelBlooms</h1>
-
       <main className="container">
-
         <div>
           <div className="field">
             <label className="label" htmlFor="width-input">Width</label>

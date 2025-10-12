@@ -1,5 +1,8 @@
 @use 'stylesheets/theme_toggle.scss';
-@import "~bulma/bulma";
+// @use "~bulma/bulma";
+@use "stylesheets/bulma-custom.scss";
+@import "stylesheets/variables.scss";
+
 
 $transition-speed: 0.5s;
 $max-content-width: 50%;
@@ -10,12 +13,6 @@ $button-margin: 20px 20px 4px;
 $z-index-base: 99;
 $z-index-top: 100;
 $default-border-color: rgba(0, 0, 0, 0.227);
-$primary-bloom: #82243b;
-$bloom-black: #000;
-$bloom-pink: #BA3D5C;
-$primary-white: #f3dfe4;
-
-
 
 /* Mixins */
 @mixin floating-control-button {
