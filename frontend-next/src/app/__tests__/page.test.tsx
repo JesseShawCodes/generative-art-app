@@ -1,15 +1,14 @@
-import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
-import Home from '../page'
+import { render, screen } from '@testing-library/react';
+import Home from '../page';
 
 describe('Home', () => {
-  it('renders a heading', () => {
-    render(<Home />)
+  it('renders a button', async () => {
+    render(<Home />);
  
-    const heading = screen.getByRole('heading', {
-      name: /PixelBloom/i,
-    })
+    const button = await screen.findByRole('button', {
+      name: /Generate New Art/i,
+    });
  
-    expect(heading).toBeInTheDocument()
-  })
-})
+    expect(button).toBeInTheDocument();
+  });
+});
