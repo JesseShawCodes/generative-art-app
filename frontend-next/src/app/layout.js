@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ThemeProvider } from "./ThemeContext";
+import { CanvasProvider } from "./CanvasContext";
 import FloatingControls from "./components/FloatingControls/FloatingControls";
 import "./globals.scss";
 
@@ -26,19 +27,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ThemeProvider>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
-          <Navbar />
-          {children}
-          <FloatingControls />
-          <Footer />
-
-      </body>
-    </html>
-    </ThemeProvider>
+    <CanvasProvider>
+      <ThemeProvider>
+        <html lang="en">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            <Navbar />
+            {children}
+            <FloatingControls />
+            <Footer />
+          </body>
+        </html>
+      </ThemeProvider>
+    </CanvasProvider>
   );
 }

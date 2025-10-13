@@ -1,14 +1,22 @@
 "use client";
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Head from 'next/head'; // For managing document head
+import { useCanvas } from './CanvasContext';
 
 export default function Home() {
-  const canvasRef = useRef(null);
+  const localCanvasRef = useRef(null);
+  const { canvasRef } = useCanvas();
   const [artData, setArtData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [width, setWidth] = useState(800);
   const [height, setHeight] = useState(600);
   const [numElements, setNumElements] = useState(50);
+
+  useEffect(() => {
+    if (localCanvasRef.current) {
+      canvasRef.current = localCanvasRef.current;
+    }
+  }, [canvasRef]);
 
   const fetchArt = useCallback(async () => {
     setLoading(true);
@@ -37,7 +45,7 @@ export default function Home() {
   }, [fetchArt]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = localCanvasRef.current;
     if (!canvas) return; // Ensure canvas exists
 
     const context = canvas.getContext('2d');
@@ -87,7 +95,7 @@ export default function Home() {
         </div>
 
         <canvas
-          ref={canvasRef}
+          ref={localCanvasRef}
           width={width}
           height={height}
           style={{ border: '1px solid #ccc', background: '#333', marginTop: '20px' }}

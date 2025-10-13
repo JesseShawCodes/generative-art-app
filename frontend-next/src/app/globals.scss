@@ -1,5 +1,5 @@
 @use 'stylesheets/theme_toggle.scss';
-// @use "~bulma/bulma";
+@use 'stylesheets/download_button.scss';
 @use "stylesheets/bulma-custom.scss";
 @import "stylesheets/variables.scss";
 
@@ -74,7 +74,7 @@ body {
   right: $floating-controls-offset;
 
   /* Apply the mixin to all control buttons */
-  #back_to_top, #change-theme {
+  #back_to_top, #change-theme, #download-button {
     @include floating-control-button;
   }
 
