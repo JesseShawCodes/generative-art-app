@@ -11,7 +11,8 @@ function DownloadButton() {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const link = document.createElement('a');
-      link.download = 'generative-art.png';
+      const randomString = window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+      link.download = `pixal-bloom-${randomString}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
