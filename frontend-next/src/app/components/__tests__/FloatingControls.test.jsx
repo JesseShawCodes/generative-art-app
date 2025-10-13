@@ -15,6 +15,11 @@ jest.mock('../FloatingControls/ThemeButton', () => {
   MockThemeButton.displayName = 'MockThemeButton';
   return MockThemeButton;
 });
+jest.mock('../FloatingControls/DownloadButton', () => {
+  const MockDownloadButton = () => <div data-testid="download-button" />;
+  MockDownloadButton.displayName = 'MockDownloadButton';
+  return MockDownloadButton;
+});
 
 describe('FloatingControls', () => {
   it('should render the BackToTop and ThemeButton components', () => {
