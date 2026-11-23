@@ -93,18 +93,35 @@ coverage-frontend: ## Frontend tests + coverage report
 # ── Lint / typecheck ─────────────────────────────────────────────────────────
 
 .PHONY: lint
-lint: lint-frontend ## Lint frontend (backend has no linter configured yet)
+lint: lint-backend lint-frontend ## Lint backend (Ruff) + frontend (ESLint)
+
+.PHONY: lint-backend
+lint-backend: ## Ruff the backend
+	@test -x $(VENV)/bin/ruff || $(MAKE) setup-backend
+	cd $(BACKEND_DIR) && $(VENV)/bin/ruff check app tests
 
 .PHONY: lint-frontend
 lint-frontend: ## ESLint the frontend
 	npm --prefix $(FRONTEND_DIR) run lint
 
 .PHONY: typecheck
-typecheck: ## TypeScript check (frontend)
+typecheck: typecheck-backend typecheck-frontend ## Typecheck backend (mypy) + frontend (tsc)
+
+.PHONY: typecheck-backend
+typecheck-backend: ## Mypy the backend
+	@test -x $(VENV)/bin/mypy || $(MAKE) setup-backend
+	cd $(BACKEND_DIR) && $(VENV)/bin/mypy app
+
+.PHONY: typecheck-frontend
+typecheck-frontend: ## TypeScript check (frontend)
 	npm --prefix $(FRONTEND_DIR) run typecheck
 
+.PHONY: test-e2e
+test-e2e: ## Run Playwright browser tests
+	npm --prefix $(FRONTEND_DIR) run test:e2e
+
 .PHONY: check
-check: lint typecheck test ## Lint, typecheck, and test everything
+check: lint typecheck test ## Lint, typecheck, and unit/component tests
 
 # ── API types ────────────────────────────────────────────────────────────────
 

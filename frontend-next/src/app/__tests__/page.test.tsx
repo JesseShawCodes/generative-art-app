@@ -40,9 +40,12 @@ describe('Home', () => {
       </CanvasProvider>
     );
 
-    await waitFor(() => expect(mockedGenerateArt).toHaveBeenCalledTimes(1));
+    const generateButton = await screen.findByRole('button', {
+      name: /Generate New Art/i,
+    });
+    await waitFor(() => expect(generateButton).toBeEnabled());
 
-    fireEvent.click(screen.getByRole('button', { name: /Generate New Art/i }));
+    fireEvent.click(generateButton);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /NEXT_PUBLIC_API_URL is not set/

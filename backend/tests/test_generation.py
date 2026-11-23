@@ -25,3 +25,43 @@ def test_generate_art_custom_count() -> None:
         assert 5 <= circle["radius"] <= 50
         assert circle["color"].startswith("#")
         assert len(circle["color"]) == 7
+
+
+def test_generate_art_rejects_width_too_small() -> None:
+    response = client.post(
+        "/generate-art",
+        json={"width": 50, "height": 600, "num_elements": 10},
+    )
+    assert response.status_code == 422
+
+
+def test_generate_art_rejects_height_too_large() -> None:
+    response = client.post(
+        "/generate-art",
+        json={"width": 800, "height": 5000, "num_elements": 10},
+    )
+    assert response.status_code == 422
+
+
+def test_generate_art_rejects_zero_elements() -> None:
+    response = client.post(
+        "/generate-art",
+        json={"width": 800, "height": 600, "num_elements": 0},
+    )
+    assert response.status_code == 422
+
+
+def test_generate_art_rejects_negative_elements() -> None:
+    response = client.post(
+        "/generate-art",
+        json={"width": 800, "height": 600, "num_elements": -5},
+    )
+    assert response.status_code == 422
+
+
+def test_generate_art_rejects_excessive_elements() -> None:
+    response = client.post(
+        "/generate-art",
+        json={"width": 800, "height": 600, "num_elements": 1001},
+    )
+    assert response.status_code == 422

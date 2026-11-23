@@ -5,19 +5,25 @@ from app.schemas.generation import (
     Circle,
 )
 
+MIN_RADIUS = 5
+MAX_RADIUS = 50
+
 
 def generate_circles(
     request: ArtGenerationRequest,
+    seed: int | None = None,
 ) -> list[Circle]:
+    """Generate random circles. Pass ``seed`` for reproducible output."""
+    rng = random.Random(seed)
     circles: list[Circle] = []
 
     for _ in range(request.num_elements):
         circles.append(
             Circle(
-                x=random.randint(0, request.width),
-                y=random.randint(0, request.height),
-                radius=random.randint(5, 50),
-                color=f"#{random.randint(0, 0xFFFFFF):06x}",
+                x=rng.randint(0, request.width),
+                y=rng.randint(0, request.height),
+                radius=rng.randint(MIN_RADIUS, MAX_RADIUS),
+                color=f"#{rng.randint(0, 0xFFFFFF):06x}",
             )
         )
 
