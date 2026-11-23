@@ -1,20 +1,24 @@
 /**
- * Types mirroring the FastAPI models in backend/app/schemas/generation.py.
- * Keep these in sync with the pydantic models there.
+ * Ergonomic aliases over the OpenAPI-generated contract.
+ *
+ * Source of truth: backend Pydantic models → FastAPI OpenAPI →
+ * `openapi/openapi.json` → `src/types/openapi.d.ts` (via `npm run generate:api`).
+ *
+ * Do not hand-edit schema shapes here; regenerate from the backend instead.
  */
 
-/** Response item of `POST /generate-art` (backend `Circle`). */
-export interface Circle {
-  x: number;
-  y: number;
-  radius: number;
-  /** Hex color, e.g. `#a1b2c3` */
-  color: string;
-}
+import type { components, paths } from "@/types/openapi";
 
-/** Request body of `POST /generate-art` (backend `ArtGenerationRequest`). */
-export interface ArtGenerationRequest {
-  width: number;
-  height: number;
-  num_elements: number;
-}
+/** `components.schemas.Circle` from `POST /generate-art`. */
+export type Circle = components["schemas"]["Circle"];
+
+/** `components.schemas.ArtGenerationRequest` for `POST /generate-art`. */
+export type ArtGenerationRequest = components["schemas"]["ArtGenerationRequest"];
+
+/** Successful JSON body of `POST /generate-art`. */
+export type GenerateArtResponse =
+  paths["/generate-art"]["post"]["responses"][200]["content"]["application/json"];
+
+/** Successful JSON body of `GET /`. */
+export type HealthResponse =
+  paths["/"]["get"]["responses"][200]["content"]["application/json"];
