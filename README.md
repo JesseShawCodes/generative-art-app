@@ -60,7 +60,7 @@ This writes `frontend-next/openapi/openapi.json` and `frontend-next/src/types/op
 
 `POST /generate-art` dispatches to pluggable algorithms (`circles`, `flow_field`,
 `geometric`, `particles`). The backend returns drawable geometry; the React
-canvas renders it.
+studio canvas renders it and can export PNG or SVG.
 
 ```json
 {
@@ -69,12 +69,26 @@ canvas renders it.
   "height": 800,
   "num_elements": 150,
   "seed": 48291,
-  "parameters": { "min_radius": 5, "max_radius": 50 }
+  "parameters": {
+    "min_radius": 5,
+    "max_radius": 50,
+    "colors": ["#ff507c", "#82243b", "#f4eaed"]
+  }
 }
 ```
 
 `seed` is first-class: omit it for a random seed (echoed in the response), or
 pass one to regenerate the same composition.
+
+`parameters.colors` is an optional list of hex colors. When provided, generators
+pick only from that palette; omit it for unconstrained random colors.
+
+## Studio (frontend)
+
+The home page is a creative studio: live (debounced) parameter controls, seed
+lock/reuse, preset and custom palettes, regenerate without a page refresh, and
+PNG/SVG export. Generation stays on the Python backend; the canvas only renders
+and exports the returned geometry.
 
 ## CI
 

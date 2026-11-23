@@ -4,7 +4,7 @@ import math
 import random
 
 from app.schemas.generation import ArtElement, ArtGenerationRequest, LineElement
-from app.services.generators.base import as_float, as_int, clamp, random_color
+from app.services.generators.base import as_float, as_int, clamp, pick_color
 
 
 def _angle_at(x: float, y: float, scale: float, time: float) -> float:
@@ -34,7 +34,7 @@ def generate_flow_field(
     for _ in range(request.num_elements):
         x = rng.uniform(0, request.width)
         y = rng.uniform(0, request.height)
-        color = random_color(rng)
+        color = pick_color(rng, params)
         opacity = rng.uniform(0.35, 0.9)
 
         for _step in range(steps):

@@ -1,0 +1,199 @@
+"use client";
+
+import RangeField from "../RangeField";
+import PalettePicker from "./PalettePicker";
+import ExportMenu from "./ExportMenu";
+import type { RefObject } from "react";
+import type { PaletteId } from "@/lib/palettes";
+import { ALGORITHMS, type Algorithm, type ArtElement } from "@/types/art";
+
+interface ControlPanelProps {
+  algorithm: Algorithm;
+  onAlgorithmChange: (value: Algorithm) => void;
+  width: number;
+  onWidthChange: (value: number) => void;
+  height: number;
+  onHeightChange: (value: number) => void;
+  numElements: number;
+  onNumElementsChange: (value: number) => void;
+  seedInput: string;
+  onSeedInputChange: (value: string) => void;
+  lastSeed: number | null;
+  onReuseSeed: () => void;
+  onClearSeed: () => void;
+  paletteId: PaletteId;
+  onPaletteIdChange: (id: PaletteId) => void;
+  customColors: string[];
+  onCustomColorsChange: (colors: string[]) => void;
+  loading: boolean;
+  error: string | null;
+  onGenerate: () => void;
+  onRegenerate: () => void;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  artData: ArtElement[];
+}
+
+export default function ControlPanel({
+  algorithm,
+  onAlgorithmChange,
+  width,
+  onWidthChange,
+  height,
+  onHeightChange,
+  numElements,
+  onNumElementsChange,
+  seedInput,
+  onSeedInputChange,
+  lastSeed,
+  onReuseSeed,
+  onClearSeed,
+  paletteId,
+  onPaletteIdChange,
+  customColors,
+  onCustomColorsChange,
+  loading,
+  error,
+  onGenerate,
+  onRegenerate,
+  canvasRef,
+  artData,
+}: ControlPanelProps) {
+  return (
+    <aside className="w-full shrink-0 lg:w-80 xl:w-96">
+      <div className="lg:sticky lg:top-4">
+        <div className="mb-3">
+          <label
+            className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
+            htmlFor="algorithm-select"
+          >
+            Algorithm
+          </label>
+          <select
+            id="algorithm-select"
+            value={algorithm}
+            onChange={(event) =>
+              onAlgorithmChange(event.target.value as Algorithm)
+            }
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+          >
+            {ALGORITHMS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <RangeField
+          id="width-input"
+          label="Width"
+          min={100}
+          max={1000}
+          value={width}
+          onValueChange={onWidthChange}
+        />
+        <RangeField
+          id="height-input"
+          label="Height"
+          min={100}
+          max={1000}
+          value={height}
+          onValueChange={onHeightChange}
+        />
+        <RangeField
+          id="elements-input"
+          label="Elements"
+          min={1}
+          max={500}
+          value={numElements}
+          onValueChange={onNumElementsChange}
+        />
+
+        <div className="mb-3">
+          <label
+            className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
+            htmlFor="seed-input"
+          >
+            Seed
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="seed-input"
+              type="number"
+              min={0}
+              step={1}
+              value={seedInput}
+              onChange={(event) => onSeedInputChange(event.target.value)}
+              placeholder="Leave empty for random"
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+            />
+            <button
+              type="button"
+              onClick={onClearSeed}
+              className="shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-[#363636] hover:border-bloom-pink dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+            >
+              Clear
+            </button>
+          </div>
+          {lastSeed !== null && (
+            <p className="mt-1 text-xs text-neutral-500 dark:text-night-text">
+              Last seed: {lastSeed}{" "}
+              <button
+                type="button"
+                onClick={onReuseSeed}
+                className="underline hover:text-bloom-pink"
+              >
+                reuse
+              </button>
+            </p>
+          )}
+        </div>
+
+        <PalettePicker
+          paletteId={paletteId}
+          customColors={customColors}
+          onPaletteIdChange={onPaletteIdChange}
+          onCustomColorsChange={onCustomColorsChange}
+        />
+
+        <div className="mb-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={loading}
+            className="rounded-md border border-bloom bg-bloom px-4 py-2 text-sm font-medium text-white hover:border-bloom-pink hover:bg-bloom-pink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? "Generating..." : "Generate"}
+          </button>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            disabled={loading}
+            className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm text-[#363636] hover:border-bloom-pink disabled:cursor-not-allowed disabled:opacity-50 dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+          >
+            Regenerate
+          </button>
+        </div>
+
+        <ExportMenu
+          canvasRef={canvasRef}
+          artData={artData}
+          algorithm={algorithm}
+          seed={lastSeed}
+          width={width}
+          height={height}
+          disabled={loading}
+        />
+
+        {error && (
+          <p
+            role="alert"
+            className="mt-3 text-sm text-bloom dark:text-bloom-pink"
+          >
+            {error}
+          </p>
+        )}
+      </div>
+    </aside>
+  );
+}

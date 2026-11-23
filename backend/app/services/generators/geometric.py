@@ -9,7 +9,7 @@ from app.schemas.generation import (
     Point,
     PolygonElement,
 )
-from app.services.generators.base import as_float, as_int, random_color
+from app.services.generators.base import as_float, as_int, pick_color
 
 
 def _regular_polygon(
@@ -56,7 +56,7 @@ def generate_geometric(
                     sides,
                     rotation=rng.uniform(0, math.tau),
                 ),
-                color=random_color(rng),
+                color=pick_color(rng, params),
                 filled=rng.random() > 0.25,
                 opacity=rng.uniform(0.4, 0.95),
             )
