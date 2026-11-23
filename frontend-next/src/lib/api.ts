@@ -28,8 +28,11 @@ export function isCircle(value: unknown): value is Circle {
   return (
     isRecord(value) &&
     typeof value.x === "number" &&
+    Number.isFinite(value.x) &&
     typeof value.y === "number" &&
+    Number.isFinite(value.y) &&
     typeof value.radius === "number" &&
+    Number.isFinite(value.radius) &&
     typeof value.color === "string"
   );
 }
@@ -57,7 +60,13 @@ export async function generateArt(
     );
   }
 
-  const data: unknown = await response.json();
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    throw new ApiError("Invalid JSON response from /generate-art");
+  }
+
   if (!isCircleArray(data)) {
     throw new ApiError("Unexpected response shape from /generate-art");
   }

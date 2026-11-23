@@ -20,6 +20,7 @@ describe('isCircle', () => {
     expect(isCircle(null)).toBe(false);
     expect(isCircle({ x: '1', y: 2, radius: 3, color: '#fff' })).toBe(false);
     expect(isCircle({ x: 1, y: 2, radius: 3 })).toBe(false);
+    expect(isCircle({ x: NaN, y: 2, radius: 3, color: '#fff' })).toBe(false);
   });
 });
 
@@ -58,5 +59,18 @@ describe('generateArt', () => {
     mockFetchResponse([{ nope: true }]);
 
     await expect(generateArt(request)).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it('throws an ApiError when the response body is not JSON', async () => {
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.reject(new SyntaxError('Unexpected token')),
+    } as Response);
+
+    await expect(generateArt(request)).rejects.toMatchObject({
+      name: 'ApiError',
+      message: expect.stringMatching(/Invalid JSON/),
+    });
   });
 });

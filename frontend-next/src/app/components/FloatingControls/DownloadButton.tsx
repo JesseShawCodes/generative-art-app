@@ -12,7 +12,7 @@ function DownloadButton() {
       const link = document.createElement('a');
       const [randomValue = 0] = window.crypto.getRandomValues(new Uint32Array(1));
       const randomString = randomValue.toString(36);
-      link.download = `pixal-bloom-${randomString}.png`;
+      link.download = `pixel-bloom-${randomString}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
