@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fortawesome/free-brands-svg-icons": "^7.3.1",
@@ -23,6 +24,7 @@
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -30,6 +32,7 @@
     "eslint-config-next": "^16.4.6",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
   }
 }

@@ -1,5 +1,4 @@
 "use client"
-import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { useCanvas } from '../../CanvasContext';
@@ -11,7 +10,8 @@ function DownloadButton() {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const link = document.createElement('a');
-      const randomString = window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+      const [randomValue = 0] = window.crypto.getRandomValues(new Uint32Array(1));
+      const randomString = randomValue.toString(36);
       link.download = `pixal-bloom-${randomString}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();

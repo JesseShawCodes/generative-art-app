@@ -1,12 +1,15 @@
 "use client";
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import Head from 'next/head'; // For managing document head
 import { useCanvas } from './CanvasContext';
+import RangeField from './components/RangeField';
+import { generateArt } from '@/lib/api';
+import type { Circle } from '@/types/art';
 
 export default function Home() {
-  const localCanvasRef = useRef(null);
+  const localCanvasRef = useRef<HTMLCanvasElement>(null);
   const { canvasRef } = useCanvas();
-  const [artData, setArtData] = useState([]);
+  const [artData, setArtData] = useState<Circle[]>([]);
   const [loading, setLoading] = useState(false);
   const [width, setWidth] = useState(800);
   const [height, setHeight] = useState(600);
@@ -21,17 +24,7 @@ export default function Home() {
   const fetchArt = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-art`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ width, height, num_elements: numElements }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await generateArt({ width, height, num_elements: numElements });
       setArtData(data);
     } catch (error) {
       console.error("Error fetching art:", error);
@@ -63,10 +56,6 @@ export default function Home() {
     });
   }, [artData, width, height]);
 
-  const fieldClass = 'mb-3';
-  const labelClass = 'mb-1 block font-semibold text-bloom-dark dark:text-night-strong';
-  const rangeClass = 'w-full accent-bloom dark:accent-bloom-pink';
-
   return (
     <div className="mx-auto w-full max-w-6xl px-4">
       <Head>
@@ -77,18 +66,9 @@ export default function Home() {
 
       <main className="py-6">
         <div>
-          <div className={fieldClass}>
-            <label className={labelClass} htmlFor="width-input">Width</label>
-            <input id="width-input" type="range" min="100" max="1000" className={rangeClass} value={width} onChange={(e) => setWidth(Number(e.target.value))} />
-          </div>
-          <div className={fieldClass}>
-            <label className={labelClass} htmlFor="height-input">Height</label>
-            <input id="height-input" type="range" min="100" max="1000" className={rangeClass} value={height} onChange={(e) => setHeight(Number(e.target.value))} />
-          </div>
-          <div className={fieldClass}>
-            <label className={labelClass} htmlFor="elements-input">Elements</label>
-            <input id="elements-input" type="range" min="0" max="500" className={rangeClass} value={numElements} onChange={(e) => setNumElements(Number(e.target.value))} />
-          </div>
+          <RangeField id="width-input" label="Width" min={100} max={1000} value={width} onValueChange={setWidth} />
+          <RangeField id="height-input" label="Height" min={100} max={1000} value={height} onValueChange={setHeight} />
+          <RangeField id="elements-input" label="Elements" min={0} max={500} value={numElements} onValueChange={setNumElements} />
           <button
             onClick={fetchArt}
             disabled={loading}
