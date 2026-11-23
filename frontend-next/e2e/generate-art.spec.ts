@@ -134,3 +134,35 @@ test("surfaces an API error to the user", async ({ page }) => {
     /HTTP error! status: 500/,
   );
 });
+
+test("user can save and load a gallery composition", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+  });
+
+  const getRequestCount = await mockGenerateArt(page, () => ({
+    status: 200,
+    body: mockResponse,
+  }));
+
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: /Gallery/i })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Save to gallery/i }),
+  ).toBeEnabled();
+
+  await page.getByRole("button", { name: /Save to gallery/i }).click();
+  await expect(page.getByRole("status")).toHaveText(/Saved to gallery/i);
+  await expect(
+    page.getByRole("button", { name: /Open Circles composition 99/i }),
+  ).toBeVisible();
+
+  await page.getByRole("spinbutton", { name: "Seed" }).fill("1");
+  await page.getByRole("button", { name: /^Load$/i }).click();
+
+  await expect(page.getByRole("spinbutton", { name: "Seed" })).toHaveValue(
+    "99",
+  );
+  await expect.poll(getRequestCount).toBeGreaterThanOrEqual(2);
+});

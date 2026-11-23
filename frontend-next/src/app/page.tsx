@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCanvas } from "./CanvasContext";
 import ControlPanel from "./components/studio/ControlPanel";
+import GalleryPanel from "./components/studio/GalleryPanel";
 import ResponsiveCanvas from "./components/studio/ResponsiveCanvas";
+import { useGallery } from "./hooks/useGallery";
 import { useGenerateArt } from "./hooks/useGenerateArt";
+import { captureThumbnail, type GalleryItem } from "@/lib/gallery";
 import { colorsForPalette, type PaletteId } from "@/lib/palettes";
 import type { Algorithm } from "@/types/art";
 
@@ -22,6 +25,9 @@ export default function Home() {
   const [seedInput, setSeedInput] = useState("");
   const [paletteId, setPaletteId] = useState<PaletteId>("bloom");
   const [customColors, setCustomColors] = useState<string[]>([]);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const { items, saveItem, deleteItem } = useGallery();
 
   const parsedSeed = useMemo(() => {
     if (seedInput.trim() === "") return null;
@@ -56,6 +62,50 @@ export default function Home() {
     regenerate();
   };
 
+  const handleSaveToGallery = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || lastSeed === null || loading) return;
+
+    saveItem({
+      algorithm,
+      width,
+      height,
+      numElements,
+      seed: lastSeed,
+      paletteId,
+      customColors,
+      thumbnail: captureThumbnail(canvas),
+    });
+    setSaveMessage("Saved to gallery");
+  }, [
+    algorithm,
+    canvasRef,
+    customColors,
+    height,
+    lastSeed,
+    loading,
+    numElements,
+    paletteId,
+    saveItem,
+    width,
+  ]);
+
+  useEffect(() => {
+    if (!saveMessage) return;
+    const timer = window.setTimeout(() => setSaveMessage(null), 2000);
+    return () => window.clearTimeout(timer);
+  }, [saveMessage]);
+
+  const handleLoadFromGallery = useCallback((item: GalleryItem) => {
+    setAlgorithm(item.algorithm);
+    setWidth(item.width);
+    setHeight(item.height);
+    setNumElements(item.numElements);
+    setSeedInput(String(item.seed));
+    setPaletteId(item.paletteId);
+    setCustomColors(item.customColors);
+  }, []);
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4">
       <main className="py-6">
@@ -75,6 +125,14 @@ export default function Home() {
             {loading && (
               <p className="mt-2 text-xs text-neutral-500 dark:text-night-text">
                 Generating…
+              </p>
+            )}
+            {saveMessage && (
+              <p
+                role="status"
+                className="mt-2 text-xs text-bloom dark:text-bloom-pink"
+              >
+                {saveMessage}
               </p>
             )}
           </div>
@@ -107,6 +165,14 @@ export default function Home() {
             artData={artData}
           />
         </div>
+
+        <GalleryPanel
+          items={items}
+          onSave={handleSaveToGallery}
+          onLoad={handleLoadFromGallery}
+          onDelete={deleteItem}
+          canSave={!loading && lastSeed !== null && artData.length > 0}
+        />
       </main>
     </div>
   );

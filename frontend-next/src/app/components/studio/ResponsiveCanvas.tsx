@@ -30,7 +30,7 @@ export default function ResponsiveCanvas({
     const canvas = localRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
-    if (!context) return;
+    if (!context || typeof context.clearRect !== "function") return;
     renderArt(context, artData, width, height);
   }, [artData, width, height]);
 
