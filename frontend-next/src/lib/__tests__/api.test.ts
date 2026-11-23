@@ -35,6 +35,16 @@ describe('generateArt', () => {
     );
   });
 
+  it('throws a clear error when NEXT_PUBLIC_API_URL is missing', async () => {
+    const original = process.env.NEXT_PUBLIC_API_URL;
+    delete process.env.NEXT_PUBLIC_API_URL;
+    try {
+      await expect(generateArt(request)).rejects.toThrow(/NEXT_PUBLIC_API_URL/);
+    } finally {
+      process.env.NEXT_PUBLIC_API_URL = original;
+    }
+  });
+
   it('throws an ApiError on a non-OK response', async () => {
     mockFetchResponse(null, false, 500);
 

@@ -10,6 +10,16 @@ export class ApiError extends Error {
   }
 }
 
+function getApiBaseUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl) {
+    throw new ApiError(
+      "NEXT_PUBLIC_API_URL is not set. Copy .env.example to .env.local and restart the dev server.",
+    );
+  }
+  return baseUrl.replace(/\/+$/, "");
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -33,15 +43,12 @@ export async function generateArt(
   request: ArtGenerationRequest,
   signal?: AbortSignal,
 ): Promise<Circle[]> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/generate-art`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
-      signal,
-    },
-  );
+  const response = await fetch(`${getApiBaseUrl()}/generate-art`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+    signal,
+  });
 
   if (!response.ok) {
     throw new ApiError(
