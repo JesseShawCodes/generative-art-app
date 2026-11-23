@@ -46,10 +46,12 @@ uvicorn app.main:app --reload
 
 API docs: http://localhost:8000/docs
 
-## Tests
+## Tests / quality
 
 ```bash
-pytest
+pytest          # unit + API tests (httpx TestClient)
+ruff check app tests
+mypy app
 ```
 
 Coverage is enabled by default via `pytest-cov`. For an HTML report:
@@ -58,6 +60,8 @@ Coverage is enabled by default via `pytest-cov`. For an HTML report:
 pytest --cov-report=html
 open htmlcov/index.html
 ```
+
+`generate_circles(..., seed=...)` makes output deterministic for reliable tests.
 
 
 ## Endpoints
