@@ -1,0 +1,43 @@
+/* Floating Controls */
+.floating-controls {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+
+  /* Shared look for all control buttons */
+  #back_to_top,
+  #change-theme,
+  #download-button {
+    z-index: 99;
+    border: none;
+    outline: none;
+    padding: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50px;
+    backface-visibility: hidden;
+    margin: 20px 20px 4px;
+    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
+    width: 55px;
+    height: 55px;
+    background-color: var(--color-bloom);
+    color: var(--color-bloom-white);
+  }
+
+  #back_to_top {
+    transition: all 0.3s ease 0s;
+  }
+
+  #change-theme {
+    transition: all 1.5s ease 0s;
+  }
+
+  #back_to_top_container {
+    z-index: 100;
+    transition: opacity 1.4s ease-in-out;
+  }
+
+  #theme-container {
+    transition: opacity 1.4s ease-in-out;
+  }
+}

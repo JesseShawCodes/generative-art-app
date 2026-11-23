@@ -4,7 +4,7 @@ import Footer from "./components/Footer";
 import { ThemeProvider } from "./ThemeContext";
 import { CanvasProvider } from "./CanvasContext";
 import FloatingControls from "./components/FloatingControls/FloatingControls";
-import "./globals.scss";
+import "./globals.css";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
