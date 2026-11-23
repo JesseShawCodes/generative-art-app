@@ -5,7 +5,7 @@ To start backend locally (from virtual env)
 Verify 
 ```
 python3 --version
-# Verify atleazt Python 3.10
+# Verify at least Python 3.10
 python3 -m venv .venv
 ```
 
@@ -14,13 +14,13 @@ Start Virtual Environment
 source .venv/bin/activate
 ```
 
-Install dependencies
+Install dependencies (from `backend/`)
 ```
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 ```
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 To start front end of app
