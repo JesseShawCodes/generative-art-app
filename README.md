@@ -56,7 +56,25 @@ This writes `frontend-next/openapi/openapi.json` and `frontend-next/src/types/op
 | Browser workflows | Playwright | `make test-e2e` |
 | Everything local | — | `make check` |
 
-Circle generation accepts an optional `seed` for reproducible output (used by unit tests).
+## Generation engine
+
+`POST /generate-art` dispatches to pluggable algorithms (`circles`, `flow_field`,
+`geometric`, `particles`). The backend returns drawable geometry; the React
+canvas renders it.
+
+```json
+{
+  "algorithm": "circles",
+  "width": 1200,
+  "height": 800,
+  "num_elements": 150,
+  "seed": 48291,
+  "parameters": { "min_radius": 5, "max_radius": 50 }
+}
+```
+
+`seed` is first-class: omit it for a random seed (echoed in the response), or
+pass one to regenerate the same composition.
 
 ## CI
 

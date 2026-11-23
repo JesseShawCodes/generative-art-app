@@ -1,3 +1,3 @@
-from app.services.art_generator import generate_circles
+from app.services.art_generator import generate_art
 
-__all__ = ["generate_circles"]
+__all__ = ["generate_art"]

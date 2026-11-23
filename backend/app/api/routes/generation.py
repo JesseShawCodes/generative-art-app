@@ -1,16 +1,16 @@
 from fastapi import APIRouter
 
-from app.schemas.generation import ArtGenerationRequest, Circle
-from app.services.art_generator import generate_circles
+from app.schemas.generation import ArtGenerationRequest, ArtGenerationResponse
+from app.services.generators import generate_art
 
 router = APIRouter(tags=["generation"])
 
 
 @router.post(
     "/generate-art",
-    response_model=list[Circle],
+    response_model=ArtGenerationResponse,
 )
-async def generate_art(
+async def generate_art_endpoint(
     request: ArtGenerationRequest,
-) -> list[Circle]:
-    return generate_circles(request)
+) -> ArtGenerationResponse:
+    return generate_art(request)

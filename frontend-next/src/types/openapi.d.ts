@@ -13,8 +13,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Generate Art */
-        post: operations["generate_art_generate_art_post"];
+        /** Generate Art Endpoint */
+        post: operations["generate_art_endpoint_generate_art_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -42,8 +42,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Algorithm
+         * @enum {string}
+         */
+        Algorithm: "circles" | "flow_field" | "geometric" | "particles";
         /** ArtGenerationRequest */
         ArtGenerationRequest: {
+            /** @default circles */
+            algorithm: components["schemas"]["Algorithm"];
             /**
              * Width
              * @default 800
@@ -59,9 +66,32 @@ export interface components {
              * @default 50
              */
             num_elements: number;
+            /** Seed */
+            seed?: number | null;
+            /** Parameters */
+            parameters?: {
+                [key: string]: unknown;
+            };
         };
-        /** Circle */
-        Circle: {
+        /** ArtGenerationResponse */
+        ArtGenerationResponse: {
+            algorithm: components["schemas"]["Algorithm"];
+            /** Seed */
+            seed: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Elements */
+            elements: (components["schemas"]["CircleElement"] | components["schemas"]["LineElement"] | components["schemas"]["PolygonElement"])[];
+        };
+        /** CircleElement */
+        CircleElement: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "circle";
             /** X */
             x: number;
             /** Y */
@@ -70,6 +100,11 @@ export interface components {
             radius: number;
             /** Color */
             color: string;
+            /**
+             * Opacity
+             * @default 1
+             */
+            opacity: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -80,6 +115,63 @@ export interface components {
         HealthResponse: {
             /** Message */
             message: string;
+        };
+        /** LineElement */
+        LineElement: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "line";
+            /** X1 */
+            x1: number;
+            /** Y1 */
+            y1: number;
+            /** X2 */
+            x2: number;
+            /** Y2 */
+            y2: number;
+            /** Color */
+            color: string;
+            /**
+             * Thickness
+             * @default 1
+             */
+            thickness: number;
+            /**
+             * Opacity
+             * @default 1
+             */
+            opacity: number;
+        };
+        /** Point */
+        Point: {
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
+        /** PolygonElement */
+        PolygonElement: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "polygon";
+            /** Points */
+            points: components["schemas"]["Point"][];
+            /** Color */
+            color: string;
+            /**
+             * Filled
+             * @default true
+             */
+            filled: boolean;
+            /**
+             * Opacity
+             * @default 1
+             */
+            opacity: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -103,7 +195,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    generate_art_generate_art_post: {
+    generate_art_endpoint_generate_art_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -122,7 +214,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Circle"][];
+                    "application/json": components["schemas"]["ArtGenerationResponse"];
                 };
             };
             /** @description Validation Error */
