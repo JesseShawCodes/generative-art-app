@@ -1,7 +1,7 @@
 @use 'stylesheets/theme_toggle.scss';
 @use 'stylesheets/download_button.scss';
 @use "stylesheets/bulma-custom.scss";
-@import "stylesheets/variables.scss";
+@use "stylesheets/variables.scss" as *;
 
 
 $transition-speed: 0.5s;

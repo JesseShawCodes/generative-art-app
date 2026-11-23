@@ -32,12 +32,10 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>();
 
   useEffect(() => {
+    // Read localStorage after mount so server and client markup match on hydration.
     const storedTheme = localStorage.getItem("theme") as Theme | null;
-    if (storedTheme) {
-      setTheme(storedTheme);
-    } else {
-      setTheme("light");
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(storedTheme ?? "light");
   }, []);
 
   // Toggle Theme

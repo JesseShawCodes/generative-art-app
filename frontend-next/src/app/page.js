@@ -41,7 +41,9 @@ export default function Home() {
   }, [width, height, numElements]);
 
   useEffect(() => {
-    fetchArt(); // Fetch art on initial load
+    // Fetch art on initial load and whenever the parameters change
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchArt();
   }, [fetchArt]);
 
   useEffect(() => {
