@@ -1,7 +1,28 @@
-import { ApiError, generateArt, isCircle } from '../api';
-import type { Circle } from '@/types/art';
+import {
+  ApiError,
+  generateArt,
+  isArtElement,
+  isCircle,
+  isCircleElement,
+} from "../api";
+import type { ArtGenerationResponse } from "@/types/art";
 
-const request = { width: 800, height: 600, num_elements: 2 };
+const request = {
+  algorithm: "circles" as const,
+  width: 800,
+  height: 600,
+  num_elements: 2,
+};
+
+const sampleResponse: ArtGenerationResponse = {
+  algorithm: "circles",
+  seed: 42,
+  width: 800,
+  height: 600,
+  elements: [
+    { type: "circle", x: 1, y: 2, radius: 3, color: "#abcdef", opacity: 1 },
+  ],
+};
 
 function mockFetchResponse(body: unknown, ok = true, status = 200) {
   jest.mocked(global.fetch).mockResolvedValueOnce({
@@ -11,32 +32,72 @@ function mockFetchResponse(body: unknown, ok = true, status = 200) {
   } as Response);
 }
 
-describe('isCircle', () => {
-  it('accepts a valid circle', () => {
-    expect(isCircle({ x: 1, y: 2, radius: 3, color: '#fff' })).toBe(true);
+describe("isCircleElement", () => {
+  it("accepts a valid circle element", () => {
+    expect(
+      isCircleElement({ type: "circle", x: 1, y: 2, radius: 3, color: "#fff" }),
+    ).toBe(true);
   });
 
-  it('rejects malformed values', () => {
-    expect(isCircle(null)).toBe(false);
-    expect(isCircle({ x: '1', y: 2, radius: 3, color: '#fff' })).toBe(false);
-    expect(isCircle({ x: 1, y: 2, radius: 3 })).toBe(false);
-    expect(isCircle({ x: NaN, y: 2, radius: 3, color: '#fff' })).toBe(false);
+  it("rejects malformed values", () => {
+    expect(isCircleElement(null)).toBe(false);
+    expect(
+      isCircleElement({ type: "circle", x: "1", y: 2, radius: 3, color: "#fff" }),
+    ).toBe(false);
+    expect(isCircleElement({ x: 1, y: 2, radius: 3, color: "#fff" })).toBe(
+      false,
+    );
   });
 });
 
-describe('generateArt', () => {
-  it('returns typed circles and posts the request body', async () => {
-    const circles: Circle[] = [{ x: 1, y: 2, radius: 3, color: '#abcdef' }];
-    mockFetchResponse(circles);
+describe("isCircle (legacy)", () => {
+  it("still accepts bare circles without type", () => {
+    expect(isCircle({ x: 1, y: 2, radius: 3, color: "#fff" })).toBe(true);
+  });
+});
 
-    await expect(generateArt(request)).resolves.toEqual(circles);
+describe("isArtElement", () => {
+  it("accepts line and polygon elements", () => {
+    expect(
+      isArtElement({
+        type: "line",
+        x1: 0,
+        y1: 0,
+        x2: 1,
+        y2: 1,
+        color: "#000",
+      }),
+    ).toBe(true);
+    expect(
+      isArtElement({
+        type: "polygon",
+        points: [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 0, y: 1 },
+        ],
+        color: "#111",
+        filled: true,
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("generateArt", () => {
+  it("returns typed artwork and posts the request body", async () => {
+    mockFetchResponse(sampleResponse);
+
+    await expect(generateArt(request)).resolves.toEqual(sampleResponse);
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/generate-art'),
-      expect.objectContaining({ method: 'POST', body: JSON.stringify(request) })
+      expect.stringContaining("/generate-art"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify(request),
+      }),
     );
   });
 
-  it('throws a clear error when NEXT_PUBLIC_API_URL is missing', async () => {
+  it("throws a clear error when NEXT_PUBLIC_API_URL is missing", async () => {
     const original = process.env.NEXT_PUBLIC_API_URL;
     delete process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -46,30 +107,30 @@ describe('generateArt', () => {
     }
   });
 
-  it('throws an ApiError on a non-OK response', async () => {
+  it("throws an ApiError on a non-OK response", async () => {
     mockFetchResponse(null, false, 500);
 
     await expect(generateArt(request)).rejects.toMatchObject({
-      name: 'ApiError',
+      name: "ApiError",
       status: 500,
     });
   });
 
-  it('throws an ApiError when the response shape is wrong', async () => {
+  it("throws an ApiError when the response shape is wrong", async () => {
     mockFetchResponse([{ nope: true }]);
 
     await expect(generateArt(request)).rejects.toBeInstanceOf(ApiError);
   });
 
-  it('throws an ApiError when the response body is not JSON', async () => {
+  it("throws an ApiError when the response body is not JSON", async () => {
     jest.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: () => Promise.reject(new SyntaxError('Unexpected token')),
+      json: () => Promise.reject(new SyntaxError("Unexpected token")),
     } as Response);
 
     await expect(generateArt(request)).rejects.toMatchObject({
-      name: 'ApiError',
+      name: "ApiError",
       message: expect.stringMatching(/Invalid JSON/),
     });
   });

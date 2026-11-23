@@ -1,23 +1,49 @@
 "use client";
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { useCanvas } from './CanvasContext';
-import RangeField from './components/RangeField';
-import { generateArt } from '@/lib/api';
-import type { Circle } from '@/types/art';
+import { useRef, useEffect, useState, useCallback } from "react";
+import { useCanvas } from "./CanvasContext";
+import RangeField from "./components/RangeField";
+import { generateArt } from "@/lib/api";
+import { renderArt } from "@/lib/renderArt";
+import {
+  ALGORITHMS,
+  type Algorithm,
+  type ArtElement,
+  type ArtGenerationRequest,
+} from "@/types/art";
 
 const INITIAL_WIDTH = 800;
 const INITIAL_HEIGHT = 600;
 const INITIAL_NUM_ELEMENTS = 50;
+const INITIAL_ALGORITHM: Algorithm = "circles";
+
+function buildRequest(
+  algorithm: Algorithm,
+  width: number,
+  height: number,
+  numElements: number,
+  seed: number | null,
+): ArtGenerationRequest {
+  return {
+    algorithm,
+    width,
+    height,
+    num_elements: numElements,
+    ...(seed !== null ? { seed } : {}),
+  };
+}
 
 export default function Home() {
   const localCanvasRef = useRef<HTMLCanvasElement>(null);
   const { canvasRef } = useCanvas();
-  const [artData, setArtData] = useState<Circle[]>([]);
+  const [artData, setArtData] = useState<ArtElement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [algorithm, setAlgorithm] = useState<Algorithm>(INITIAL_ALGORITHM);
   const [width, setWidth] = useState(INITIAL_WIDTH);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
   const [numElements, setNumElements] = useState(INITIAL_NUM_ELEMENTS);
+  const [seedInput, setSeedInput] = useState("");
+  const [lastSeed, setLastSeed] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -25,6 +51,12 @@ export default function Home() {
       canvasRef.current = localCanvasRef.current;
     }
   }, [canvasRef]);
+
+  const parsedSeed = (() => {
+    if (seedInput.trim() === "") return null;
+    const value = Number(seedInput);
+    return Number.isInteger(value) && value >= 0 ? value : null;
+  })();
 
   const fetchArt = useCallback(async () => {
     abortRef.current?.abort();
@@ -35,10 +67,11 @@ export default function Home() {
     setError(null);
     try {
       const data = await generateArt(
-        { width, height, num_elements: numElements },
+        buildRequest(algorithm, width, height, numElements, parsedSeed),
         controller.signal,
       );
-      setArtData(data);
+      setArtData(data.elements);
+      setLastSeed(data.seed);
     } catch (err) {
       if (controller.signal.aborted) return;
       console.error("Error fetching art:", err);
@@ -48,10 +81,9 @@ export default function Home() {
         setLoading(false);
       }
     }
-  }, [width, height, numElements]);
+  }, [algorithm, width, height, numElements, parsedSeed]);
 
-  // Initial load only — slider changes wait for the Generate button.
-  // State updates run in the async continuation, not synchronously in the effect.
+  // Initial load only — control changes wait for the Generate button.
   useEffect(() => {
     const controller = new AbortController();
     abortRef.current = controller;
@@ -59,15 +91,18 @@ export default function Home() {
     void (async () => {
       try {
         const data = await generateArt(
-          {
-            width: INITIAL_WIDTH,
-            height: INITIAL_HEIGHT,
-            num_elements: INITIAL_NUM_ELEMENTS,
-          },
+          buildRequest(
+            INITIAL_ALGORITHM,
+            INITIAL_WIDTH,
+            INITIAL_HEIGHT,
+            INITIAL_NUM_ELEMENTS,
+            null,
+          ),
           controller.signal,
         );
         if (!controller.signal.aborted) {
-          setArtData(data);
+          setArtData(data.elements);
+          setLastSeed(data.seed);
         }
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -89,32 +124,110 @@ export default function Home() {
     const canvas = localCanvasRef.current;
     if (!canvas) return;
 
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     if (!context) return;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    artData.forEach(circle => {
-      context.beginPath();
-      context.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2, false);
-      context.fillStyle = circle.color;
-      context.fill();
-    });
+    renderArt(context, artData, width, height);
   }, [artData, width, height]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4">
       <main className="py-6">
-        <div>
-          <RangeField id="width-input" label="Width" min={100} max={1000} value={width} onValueChange={setWidth} />
-          <RangeField id="height-input" label="Height" min={100} max={1000} value={height} onValueChange={setHeight} />
-          <RangeField id="elements-input" label="Elements" min={1} max={500} value={numElements} onValueChange={setNumElements} />
+        <div className="max-w-xl">
+          <div className="mb-3">
+            <label
+              className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
+              htmlFor="algorithm-select"
+            >
+              Algorithm
+            </label>
+            <select
+              id="algorithm-select"
+              value={algorithm}
+              onChange={(event) =>
+                setAlgorithm(event.target.value as Algorithm)
+              }
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+            >
+              {ALGORITHMS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <RangeField
+            id="width-input"
+            label="Width"
+            min={100}
+            max={1000}
+            value={width}
+            onValueChange={setWidth}
+          />
+          <RangeField
+            id="height-input"
+            label="Height"
+            min={100}
+            max={1000}
+            value={height}
+            onValueChange={setHeight}
+          />
+          <RangeField
+            id="elements-input"
+            label="Elements"
+            min={1}
+            max={500}
+            value={numElements}
+            onValueChange={setNumElements}
+          />
+
+          <div className="mb-3">
+            <label
+              className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
+              htmlFor="seed-input"
+            >
+              Seed
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="seed-input"
+                type="number"
+                min={0}
+                step={1}
+                value={seedInput}
+                onChange={(event) => setSeedInput(event.target.value)}
+                placeholder="Leave empty for random"
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+              />
+              <button
+                type="button"
+                onClick={() => setSeedInput("")}
+                className="shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-[#363636] hover:border-bloom-pink dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+              >
+                Clear
+              </button>
+            </div>
+            {lastSeed !== null && (
+              <p className="mt-1 text-xs text-neutral-500 dark:text-night-text">
+                Last seed: {lastSeed}{" "}
+                <button
+                  type="button"
+                  onClick={() => setSeedInput(String(lastSeed))}
+                  className="underline hover:text-bloom-pink"
+                >
+                  reuse
+                </button>
+              </p>
+            )}
+          </div>
+
           <button
             onClick={() => void fetchArt()}
             disabled={loading}
             className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-[#363636] hover:border-bloom-pink disabled:cursor-not-allowed disabled:opacity-50 dark:border-night-border dark:bg-night-surface dark:text-night-strong"
           >
-            {loading ? 'Generating...' : 'Generate New Art'}
+            {loading ? "Generating..." : "Generate New Art"}
           </button>
           {error && (
             <p

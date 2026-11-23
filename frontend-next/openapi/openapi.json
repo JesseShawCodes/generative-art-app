@@ -10,8 +10,8 @@
         "tags": [
           "generation"
         ],
-        "summary": "Generate Art",
-        "operationId": "generate_art_generate_art_post",
+        "summary": "Generate Art Endpoint",
+        "operationId": "generate_art_endpoint_generate_art_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -28,11 +28,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Circle"
-                  },
-                  "type": "array",
-                  "title": "Response Generate Art Generate Art Post"
+                  "$ref": "#/components/schemas/ArtGenerationResponse"
                 }
               }
             }
@@ -71,8 +67,22 @@
   },
   "components": {
     "schemas": {
+      "Algorithm": {
+        "type": "string",
+        "enum": [
+          "circles",
+          "flow_field",
+          "geometric",
+          "particles"
+        ],
+        "title": "Algorithm"
+      },
       "ArtGenerationRequest": {
         "properties": {
+          "algorithm": {
+            "$ref": "#/components/schemas/Algorithm",
+            "default": "circles"
+          },
           "width": {
             "type": "integer",
             "maximum": 4000.0,
@@ -93,28 +103,111 @@
             "minimum": 1.0,
             "title": "Num Elements",
             "default": 50
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
           }
         },
         "type": "object",
         "title": "ArtGenerationRequest"
       },
-      "Circle": {
+      "ArtGenerationResponse": {
         "properties": {
-          "x": {
+          "algorithm": {
+            "$ref": "#/components/schemas/Algorithm"
+          },
+          "seed": {
             "type": "integer",
+            "title": "Seed"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "elements": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/CircleElement"
+                },
+                {
+                  "$ref": "#/components/schemas/LineElement"
+                },
+                {
+                  "$ref": "#/components/schemas/PolygonElement"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "circle": "#/components/schemas/CircleElement",
+                  "line": "#/components/schemas/LineElement",
+                  "polygon": "#/components/schemas/PolygonElement"
+                }
+              }
+            },
+            "type": "array",
+            "title": "Elements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "algorithm",
+          "seed",
+          "width",
+          "height",
+          "elements"
+        ],
+        "title": "ArtGenerationResponse"
+      },
+      "CircleElement": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "circle",
+            "title": "Type",
+            "default": "circle"
+          },
+          "x": {
+            "type": "number",
             "title": "X"
           },
           "y": {
-            "type": "integer",
+            "type": "number",
             "title": "Y"
           },
           "radius": {
-            "type": "integer",
+            "type": "number",
             "title": "Radius"
           },
           "color": {
             "type": "string",
             "title": "Color"
+          },
+          "opacity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Opacity",
+            "default": 1.0
           }
         },
         "type": "object",
@@ -124,7 +217,7 @@
           "radius",
           "color"
         ],
-        "title": "Circle"
+        "title": "CircleElement"
       },
       "HTTPValidationError": {
         "properties": {
@@ -151,6 +244,116 @@
           "message"
         ],
         "title": "HealthResponse"
+      },
+      "LineElement": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "line",
+            "title": "Type",
+            "default": "line"
+          },
+          "x1": {
+            "type": "number",
+            "title": "X1"
+          },
+          "y1": {
+            "type": "number",
+            "title": "Y1"
+          },
+          "x2": {
+            "type": "number",
+            "title": "X2"
+          },
+          "y2": {
+            "type": "number",
+            "title": "Y2"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "thickness": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Thickness",
+            "default": 1.0
+          },
+          "opacity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Opacity",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2",
+          "color"
+        ],
+        "title": "LineElement"
+      },
+      "Point": {
+        "properties": {
+          "x": {
+            "type": "number",
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "Point"
+      },
+      "PolygonElement": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "polygon",
+            "title": "Type",
+            "default": "polygon"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "type": "array",
+            "minItems": 3,
+            "title": "Points"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "filled": {
+            "type": "boolean",
+            "title": "Filled",
+            "default": true
+          },
+          "opacity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Opacity",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "points",
+          "color"
+        ],
+        "title": "PolygonElement"
       },
       "ValidationError": {
         "properties": {
