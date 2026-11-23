@@ -1,20 +1,22 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../../ThemeContext';
 
+const subscribeNoop = () => () => {};
+
 function ThemeButton() {
-  const [showButton] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
+  // false during SSR/hydration, true once mounted on the client
+  const isMounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  );
   const { theme, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
-    showButton && isMounted && (
+    isMounted && (
       <div id="theme-container">
         <button
           aria-label="Change Theme"

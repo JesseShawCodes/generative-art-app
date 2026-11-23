@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@import "./stylesheets/theme-toggle.css";
+@import "./stylesheets/download-button.css";
+@import "./stylesheets/floating-controls.css";
+
+/* The theme is toggled by ThemeContext via <body data-theme="light|dark"> */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme static {
+  /* PixelBloom brand */
+  --color-bloom: #82243b;
+  --color-bloom-pink: #ff507c;
+  --color-bloom-white: #f4eaed;
+  --color-bloom-black: #000;
+  --color-bloom-dark: #320e16;
+
+  /* Dark theme surfaces and text */
+  --color-night: hsl(221 14% 9%);
+  --color-night-raised: hsl(221 14% 11%);
+  --color-night-surface: hsl(221 14% 14%);
+  --color-night-border: hsl(221 14% 24%);
+  --color-night-text: hsl(221 14% 71%);
+  --color-night-strong: hsl(221 14% 93%);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bloom-white);
+    color: #363636;
+    transition:
+      background-color 0.5s ease,
+      color 0.5s ease,
+      background-image 0.5s ease;
+  }
+
+  body[data-theme="dark"] {
+    background-color: var(--color-night);
+    color: var(--color-night-text);
+  }
+
+  a {
+    color: var(--color-bloom);
+  }
+
+  body[data-theme="dark"] a {
+    color: var(--color-bloom-pink);
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}

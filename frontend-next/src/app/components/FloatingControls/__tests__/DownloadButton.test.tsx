@@ -7,7 +7,7 @@ jest.mock('../../../CanvasContext');
 
 describe('DownloadButton', () => {
   it('renders the download button', () => {
-    useCanvas.mockReturnValue({ canvasRef: { current: null } });
+    jest.mocked(useCanvas).mockReturnValue({ canvasRef: { current: null } });
     render(<DownloadButton />);
     const downloadButton = screen.getByTestId('download-button');
     expect(downloadButton).toBeInTheDocument();
@@ -16,11 +16,9 @@ describe('DownloadButton', () => {
   it('triggers download on click', () => {
     const mockToDataURL = jest.fn().mockReturnValue('fake_data_url');
     const mockCanvasRef = {
-      current: {
-        toDataURL: mockToDataURL,
-      },
+      current: { toDataURL: mockToDataURL } as unknown as HTMLCanvasElement,
     };
-    useCanvas.mockReturnValue({ canvasRef: mockCanvasRef });
+    jest.mocked(useCanvas).mockReturnValue({ canvasRef: mockCanvasRef });
 
     Object.defineProperty(window, 'crypto', {
       value: { getRandomValues: () => [12345] },

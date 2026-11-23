@@ -1,20 +1,19 @@
 "use client"
 import { createContext, useContext, useEffect, useState } from "react";
 
-// Types for theme
 type Theme = "light" | "dark";
 
-// Interface for Theme Context
 interface ThemeContextType {
-  theme: Theme | undefined;
+  theme: Theme;
   toggleTheme: () => void;
 }
 
-// Create context with a default value.
-// Default value should match the shape of context type.
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// custom hook to use the context
+function isTheme(value: unknown): value is Theme {
+  return value === "light" || value === "dark";
+}
+
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
@@ -23,35 +22,32 @@ export const useTheme = () => {
   return context;
 };
 
-// Define the props for your ThemeProvider component
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [theme, setTheme] = useState<Theme>();
+  // Default matches SSR markup; hydrate from localStorage after mount.
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("theme") as Theme | null;
-    if (storedTheme) {
+    const storedTheme = localStorage.getItem("theme");
+    if (isTheme(storedTheme)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(storedTheme);
-    } else {
-      setTheme("light");
     }
   }, []);
 
-  // Toggle Theme
   const toggleTheme = () => {
-    // Correctly handle the potential undefined state
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+    setTheme((current) => {
+      const newTheme = current === "light" ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      return newTheme;
+    });
   };
 
   useEffect(() => {
-    if (theme !== undefined) {
-      document.body.setAttribute("data-theme", theme);
-    }
+    document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
   const value = { theme, toggleTheme };

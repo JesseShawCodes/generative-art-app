@@ -1,4 +1,3 @@
-import { React, useContext } from 'react';
 import BackToTop from './BackToTop';
 import ThemeButton from './ThemeButton';
 import DownloadButton from './DownloadButton';
