@@ -24,3 +24,7 @@ class ArtGenerationRequest(BaseModel):
     width: int = Field(default=800, ge=100, le=4000)
     height: int = Field(default=600, ge=100, le=4000)
     num_elements: int = Field(default=50, ge=1, le=1000)
+
+
+class HealthResponse(BaseModel):
+    message: str

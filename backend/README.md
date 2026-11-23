@@ -66,3 +66,15 @@ open htmlcov/index.html
 |--------|-----------------|--------------------------------------|
 | GET    | `/`             | Health / status message              |
 | POST   | `/generate-art` | Generate random circles for a canvas |
+
+## OpenAPI → frontend types
+
+Schema changes in `app/schemas/` flow to the Next.js app via OpenAPI:
+
+```bash
+# from frontend-next/
+npm run generate:api
+```
+
+That runs `scripts/export_openapi.py` (no server required) and regenerates
+`frontend-next/src/types/openapi.d.ts`. Interactive docs: http://localhost:8000/docs

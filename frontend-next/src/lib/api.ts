@@ -1,4 +1,8 @@
-import type { ArtGenerationRequest, Circle } from "@/types/art";
+import type {
+  ArtGenerationRequest,
+  Circle,
+  GenerateArtResponse,
+} from "@/types/art";
 
 export class ApiError extends Error {
   constructor(
@@ -37,7 +41,7 @@ export function isCircle(value: unknown): value is Circle {
   );
 }
 
-function isCircleArray(value: unknown): value is Circle[] {
+function isCircleArray(value: unknown): value is GenerateArtResponse {
   return Array.isArray(value) && value.every(isCircle);
 }
 
@@ -45,7 +49,7 @@ function isCircleArray(value: unknown): value is Circle[] {
 export async function generateArt(
   request: ArtGenerationRequest,
   signal?: AbortSignal,
-): Promise<Circle[]> {
+): Promise<GenerateArtResponse> {
   const response = await fetch(`${getApiBaseUrl()}/generate-art`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

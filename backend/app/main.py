@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import generation_router
 from app.core.config import settings
+from app.schemas.generation import HealthResponse
 
 app = FastAPI(title=settings.app_name)
 
@@ -17,6 +18,6 @@ app.add_middleware(
 app.include_router(generation_router)
 
 
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Generative Art API is running!"}
+@app.get("/", response_model=HealthResponse)
+async def root() -> HealthResponse:
+    return HealthResponse(message="Generative Art API is running!")

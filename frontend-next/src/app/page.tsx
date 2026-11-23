@@ -78,7 +78,7 @@ export default function Home() {
         <div>
           <RangeField id="width-input" label="Width" min={100} max={1000} value={width} onValueChange={setWidth} />
           <RangeField id="height-input" label="Height" min={100} max={1000} value={height} onValueChange={setHeight} />
-          <RangeField id="elements-input" label="Elements" min={0} max={500} value={numElements} onValueChange={setNumElements} />
+          <RangeField id="elements-input" label="Elements" min={1} max={500} value={numElements} onValueChange={setNumElements} />
           <button
             onClick={() => void fetchArt()}
             disabled={loading}
