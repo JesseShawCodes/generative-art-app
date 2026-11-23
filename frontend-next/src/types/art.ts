@@ -1,5 +1,5 @@
 /**
- * Types mirroring the FastAPI models in backend/main.py.
+ * Types mirroring the FastAPI models in backend/app/schemas/generation.py.
  * Keep these in sync with the pydantic models there.
  */
 
