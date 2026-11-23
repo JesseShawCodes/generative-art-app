@@ -52,6 +52,13 @@ API docs: http://localhost:8000/docs
 pytest
 ```
 
+Coverage is enabled by default via `pytest-cov`. For an HTML report:
+
+```bash
+pytest --cov-report=html
+open htmlcov/index.html
+```
+
 
 ## Endpoints
 

@@ -20,6 +20,7 @@ dependencies = [
 dev = [
     "httpx",
     "pytest",
+    "pytest-cov",
 ]
 
 [tool.setuptools.packages.find]
@@ -28,3 +29,12 @@ include = ["app*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "--cov=app --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
