@@ -5,15 +5,19 @@ import RangeField from './components/RangeField';
 import { generateArt } from '@/lib/api';
 import type { Circle } from '@/types/art';
 
+const INITIAL_WIDTH = 800;
+const INITIAL_HEIGHT = 600;
+const INITIAL_NUM_ELEMENTS = 50;
+
 export default function Home() {
   const localCanvasRef = useRef<HTMLCanvasElement>(null);
   const { canvasRef } = useCanvas();
   const [artData, setArtData] = useState<Circle[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [width, setWidth] = useState(800);
-  const [height, setHeight] = useState(600);
-  const [numElements, setNumElements] = useState(50);
+  const [width, setWidth] = useState(INITIAL_WIDTH);
+  const [height, setHeight] = useState(INITIAL_HEIGHT);
+  const [numElements, setNumElements] = useState(INITIAL_NUM_ELEMENTS);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -46,13 +50,39 @@ export default function Home() {
     }
   }, [width, height, numElements]);
 
+  // Initial load only — slider changes wait for the Generate button.
+  // State updates run in the async continuation, not synchronously in the effect.
   useEffect(() => {
-    // Initial load only — slider changes wait for the Generate button.
-    void fetchArt();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    void (async () => {
+      try {
+        const data = await generateArt(
+          {
+            width: INITIAL_WIDTH,
+            height: INITIAL_HEIGHT,
+            num_elements: INITIAL_NUM_ELEMENTS,
+          },
+          controller.signal,
+        );
+        if (!controller.signal.aborted) {
+          setArtData(data);
+        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        console.error("Error fetching art:", err);
+        setError(err instanceof Error ? err.message : "Failed to generate art");
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    })();
+
     return () => {
-      abortRef.current?.abort();
+      controller.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only fetch
   }, []);
 
   useEffect(() => {
