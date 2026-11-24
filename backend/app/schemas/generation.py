@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field
 
 
-class Algorithm(str, Enum):
+class Algorithm(StrEnum):
     CIRCLES = "circles"
     FLOW_FIELD = "flow_field"
     GEOMETRIC = "geometric"
