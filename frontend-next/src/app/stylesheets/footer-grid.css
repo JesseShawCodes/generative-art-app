@@ -1,5 +1,5 @@
 .footer-grid-wrap {
-  --footer-grid-canvas: #fafafa;
+  --footer-grid-canvas: transparent;
   --footer-grid-line: color-mix(in srgb, var(--color-bloom) 18%, transparent);
   pointer-events: none;
   position: absolute;
@@ -9,7 +9,7 @@
 }
 
 body[data-theme="dark"] .footer-grid-wrap {
-  --footer-grid-canvas: var(--color-night-raised);
+  --footer-grid-canvas: transparent;
   --footer-grid-line: color-mix(in srgb, var(--color-bloom-pink) 22%, transparent);
 }
 

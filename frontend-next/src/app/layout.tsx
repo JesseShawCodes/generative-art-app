@@ -39,10 +39,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <CanvasProvider>
           <ThemeProvider>
-            <Navbar />
-            {children}
-            <FloatingControls />
-            <Footer />
+            <div className="flex min-h-screen flex-col">
+              <Navbar />
+              <main className="bg-page-gradient flex-1">{children}</main>
+              <FloatingControls />
+              <Footer />
+            </div>
           </ThemeProvider>
         </CanvasProvider>
       </body>

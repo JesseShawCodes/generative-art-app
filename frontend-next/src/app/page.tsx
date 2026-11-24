@@ -124,7 +124,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4">
-      <main className="py-6">
+      <div className="py-6">
         <p className="mb-6 max-w-xl text-sm text-neutral-600 dark:text-night-text">
           Tweak parameters live, lock a seed to refine a composition, and export
           as PNG or SVG. Local mode keeps the UI snappy via a Web Worker; Server
@@ -194,7 +194,7 @@ export default function Home() {
           onDelete={deleteItem}
           canSave={!loading && lastSeed !== null && artData.length > 0}
         />
-      </main>
+      </div>
     </div>
   );
 }
