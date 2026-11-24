@@ -17,6 +17,8 @@ const INITIAL_HEIGHT = 600;
 const INITIAL_NUM_ELEMENTS = 50;
 const INITIAL_ALGORITHM: Algorithm = "circles";
 const INITIAL_ENGINE: GenerationEngine = "local";
+/** Matches backend / local generator default for flow_field `scale`. */
+const INITIAL_FLOW_FIELD_SCALE = 0.012;
 
 export default function Home() {
   const { canvasRef, exportMetaRef } = useCanvas();
@@ -25,6 +27,7 @@ export default function Home() {
   const [width, setWidth] = useState(INITIAL_WIDTH);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
   const [numElements, setNumElements] = useState(INITIAL_NUM_ELEMENTS);
+  const [flowFieldScale, setFlowFieldScale] = useState(INITIAL_FLOW_FIELD_SCALE);
   const [seedInput, setSeedInput] = useState("");
   const [paletteId, setPaletteId] = useState<PaletteId>("bloom");
   const [customColors, setCustomColors] = useState<string[]>([]);
@@ -43,6 +46,11 @@ export default function Home() {
     [paletteId, customColors],
   );
 
+  const algorithmParams = useMemo(() => {
+    if (algorithm !== "flow_field") return undefined;
+    return { scale: flowFieldScale };
+  }, [algorithm, flowFieldScale]);
+
   const { artData, loading, error, lastSeed, generate, regenerate } =
     useGenerateArt({
       algorithm,
@@ -51,6 +59,7 @@ export default function Home() {
       numElements,
       seed: parsedSeed,
       colors,
+      algorithmParams,
       engine,
     });
 
@@ -156,6 +165,8 @@ export default function Home() {
             onHeightChange={setHeight}
             numElements={numElements}
             onNumElementsChange={setNumElements}
+            flowFieldScale={flowFieldScale}
+            onFlowFieldScaleChange={setFlowFieldScale}
             seedInput={seedInput}
             onSeedInputChange={setSeedInput}
             lastSeed={lastSeed}

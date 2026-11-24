@@ -21,6 +21,8 @@ export interface GenerateParams {
   /** Parsed seed from the input; null means ask for a random seed. */
   seed: number | null;
   colors?: string[];
+  /** Algorithm-specific knobs merged into `parameters` (e.g. flow field scale). */
+  algorithmParams?: Record<string, number>;
   engine: GenerationEngine;
 }
 
@@ -29,15 +31,19 @@ function buildRequest(
   seedOverride?: number | null,
 ): ArtGenerationRequest {
   const seed = seedOverride === undefined ? params.seed : seedOverride;
+  const parameters: Record<string, unknown> = {
+    ...(params.algorithmParams ?? {}),
+  };
+  if (params.colors && params.colors.length > 0) {
+    parameters.colors = params.colors;
+  }
   return {
     algorithm: params.algorithm,
     width: params.width,
     height: params.height,
     num_elements: params.numElements,
     ...(seed !== null ? { seed } : {}),
-    ...(params.colors && params.colors.length > 0
-      ? { parameters: { colors: params.colors } }
-      : { parameters: {} }),
+    parameters,
   };
 }
 
@@ -119,6 +125,7 @@ export function useGenerateArt(params: GenerateParams) {
   }, [runGenerate]);
 
   const colorsKey = params.colors?.join(",") ?? "";
+  const algorithmParamsKey = JSON.stringify(params.algorithmParams ?? {});
 
   useEffect(() => {
     if (skipDebounceRef.current) {
@@ -141,6 +148,7 @@ export function useGenerateArt(params: GenerateParams) {
     params.seed,
     params.engine,
     colorsKey,
+    algorithmParamsKey,
     runGenerate,
   ]);
 

@@ -6,6 +6,23 @@ import random
 from app.schemas.generation import ArtElement, ArtGenerationRequest, LineElement
 from app.services.generators.base import as_float, as_int, clamp, pick_color
 
+# Here is where the magic happens
+# We are using a simple analytic flow field (no external noise dependency).
+# The angle is calculated using the following formula:
+# angle = sin(nx * 0.7 + time) + cos(ny * 0.9 - time * 0.5) + sin((nx + ny) * 0.35)
+# The angle is then used to calculate the next point in the flow field.
+# The next point is calculated using the following formula:
+# x2 = x + cos(angle) * step_length
+# y2 = y + sin(angle) * step_length
+# The next point is then used to calculate the next point in the flow field.
+# The next point is calculated using the following formula:
+# x3 = x2 + cos(angle) * step_length
+# y3 = y2 + sin(angle) * step_length
+# The next point is then used to calculate the next point in the flow field.
+# The next point is calculated using the following formula:
+# x4 = x3 + cos(angle) * step_length
+# y4 = y3 + sin(angle) * step_length
+
 
 def _angle_at(x: float, y: float, scale: float, time: float) -> float:
     """Simple analytic flow field (no external noise dependency)."""

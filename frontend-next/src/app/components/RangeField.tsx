@@ -7,9 +7,19 @@ interface RangeFieldProps {
   max: number;
   value: number;
   onValueChange: (value: number) => void;
+  /** Range step; defaults to 1. Use fractional steps for continuous params. */
+  step?: number;
 }
 
-function RangeField({ id, label, min, max, value, onValueChange }: RangeFieldProps) {
+function RangeField({
+  id,
+  label,
+  min,
+  max,
+  value,
+  onValueChange,
+  step = 1,
+}: RangeFieldProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onValueChange(Number(event.target.value));
   };
@@ -27,6 +37,7 @@ function RangeField({ id, label, min, max, value, onValueChange }: RangeFieldPro
         type="range"
         min={min}
         max={max}
+        step={step}
         className="w-full accent-bloom dark:accent-bloom-pink"
         value={value}
         onChange={handleChange}

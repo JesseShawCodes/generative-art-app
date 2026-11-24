@@ -22,6 +22,9 @@ interface ControlPanelProps {
   onHeightChange: (value: number) => void;
   numElements: number;
   onNumElementsChange: (value: number) => void;
+  /** Flow field noise scale; only shown when algorithm is flow_field. */
+  flowFieldScale: number;
+  onFlowFieldScaleChange: (value: number) => void;
   seedInput: string;
   onSeedInputChange: (value: string) => void;
   lastSeed: number | null;
@@ -50,6 +53,8 @@ export default function ControlPanel({
   onHeightChange,
   numElements,
   onNumElementsChange,
+  flowFieldScale,
+  onFlowFieldScaleChange,
   seedInput,
   onSeedInputChange,
   lastSeed,
@@ -153,6 +158,18 @@ export default function ControlPanel({
           value={numElements}
           onValueChange={onNumElementsChange}
         />
+
+        {algorithm === "flow_field" && (
+          <RangeField
+            id="flow-field-scale-input"
+            label={`Scale (${flowFieldScale.toFixed(3)})`}
+            min={0.001}
+            max={0.08}
+            step={0.001}
+            value={flowFieldScale}
+            onValueChange={onFlowFieldScaleChange}
+          />
+        )}
 
         <div className="mb-3">
           <label

@@ -40,4 +40,27 @@ describe('RangeField', () => {
 
     expect(onValueChange).toHaveBeenCalledWith(120);
   });
+
+  it('supports fractional step values', () => {
+    const onValueChange = jest.fn();
+
+    render(
+      <RangeField
+        id="scale-input"
+        label="Scale"
+        min={0.001}
+        max={0.08}
+        step={0.001}
+        value={0.012}
+        onValueChange={onValueChange}
+      />
+    );
+
+    const input = screen.getByLabelText('Scale');
+    expect(input).toHaveAttribute('step', '0.001');
+    expect(input).toHaveValue('0.012');
+
+    fireEvent.change(input, { target: { value: '0.04' } });
+    expect(onValueChange).toHaveBeenCalledWith(0.04);
+  });
 });

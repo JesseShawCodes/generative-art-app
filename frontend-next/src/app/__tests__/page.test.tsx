@@ -162,6 +162,40 @@ describe("Home", () => {
     );
   });
 
+  it("shows a scale control for flow field and sends it to the server", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    expect(screen.queryByLabelText(/Scale/i)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Algorithm/i), {
+      target: { value: "flow_field" },
+    });
+
+    const scaleInput = await screen.findByLabelText(/Scale/i);
+    expect(scaleInput).toHaveValue("0.012");
+
+    fireEvent.change(scaleInput, { target: { value: "0.04" } });
+    fireEvent.click(screen.getByRole("radio", { name: /^Server$/i }));
+
+    await waitFor(() => {
+      expect(mockedGenerateArt).toHaveBeenCalled();
+    });
+
+    const lastCall =
+      mockedGenerateArt.mock.calls[mockedGenerateArt.mock.calls.length - 1]?.[0];
+    expect(lastCall?.parameters).toEqual(
+      expect.objectContaining({
+        scale: 0.04,
+        colors: expect.arrayContaining(["#ff507c"]),
+      }),
+    );
+  });
+
   it("saves to gallery and can load a saved item back", async () => {
     render(
       <CanvasProvider>
