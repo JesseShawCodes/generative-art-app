@@ -11,4 +11,10 @@ describe('Footer', () => {
     render(<Footer />);
     expect(screen.getByText(new RegExp(`© ${new Date().getFullYear()}`))).toBeInTheDocument();
   });
+
+  it('renders the decorative grid background', () => {
+    const { container } = render(<Footer />);
+    expect(container.querySelector('.footer-grid')).toBeInTheDocument();
+    expect(container.querySelector('rect[fill^="url(#footer-grid-gradient"]')).toBeInTheDocument();
+  });
 });

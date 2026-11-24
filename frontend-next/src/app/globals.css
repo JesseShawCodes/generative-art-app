@@ -2,6 +2,7 @@
 @import "./stylesheets/theme-toggle.css";
 @import "./stylesheets/download-button.css";
 @import "./stylesheets/floating-controls.css";
+@import "./stylesheets/footer-grid.css";
 
 /* The theme is toggled by ThemeContext via <body data-theme="light|dark"> */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

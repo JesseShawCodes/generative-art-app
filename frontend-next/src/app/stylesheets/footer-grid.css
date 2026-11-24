@@ -1,0 +1,56 @@
+.footer-grid-wrap {
+  --footer-grid-canvas: #fafafa;
+  --footer-grid-line: color-mix(in srgb, var(--color-bloom) 18%, transparent);
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+body[data-theme="dark"] .footer-grid-wrap {
+  --footer-grid-canvas: var(--color-night-raised);
+  --footer-grid-line: color-mix(in srgb, var(--color-bloom-pink) 22%, transparent);
+}
+
+.footer-grid {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.footer-grid__line {
+  fill: none;
+  stroke: var(--footer-grid-line);
+  stroke-width: 0.06px;
+}
+
+.footer-grid__dots {
+  --dot-step: 0.35s;
+}
+
+.footer-grid__dot {
+  opacity: 0;
+}
+
+.footer-grid__dot[data-static="true"] {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  footer:hover .footer-grid__dots[data-animate="true"] .footer-grid__dot {
+    animation: footer-dot-chase 1.4s ease-in-out infinite;
+    animation-delay: calc((var(--dot-index) - 4) * var(--dot-step));
+  }
+}
+
+@keyframes footer-dot-chase {
+  0%,
+  25% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    opacity: 0;
+  }
+}
