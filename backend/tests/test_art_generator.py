@@ -113,3 +113,23 @@ def test_palette_colors_apply_across_algorithms() -> None:
         )
         used = {element.color for element in result.elements}
         assert used <= set(palette)
+
+
+def test_flow_field_breaks_when_path_leaves_canvas() -> None:
+    """Huge step length forces the out-of-bounds early-exit branch."""
+    result = generate_art(
+        ArtGenerationRequest(
+            algorithm=Algorithm.FLOW_FIELD,
+            width=100,
+            height=100,
+            num_elements=8,
+            seed=1,
+            parameters={
+                "step_length": 500,
+                "steps": 40,
+                "scale": 0.05,
+            },
+        )
+    )
+    # Each particle exits on the first step, so we never reach steps * elements.
+    assert len(result.elements) < 8 * 40

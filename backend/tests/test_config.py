@@ -87,5 +87,53 @@ def test_production_hides_docs(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert settings.is_production is True
     assert settings.docs_url is None
+    assert settings.redoc_url is None
     assert settings.openapi_url is None
     assert settings.use_json_logging is True
+
+
+def test_normalize_environment_passes_through_non_strings() -> None:
+    assert Settings.normalize_environment(None) is None
+    assert Settings.normalize_environment(42) == 42
+
+
+def test_normalize_log_level_passes_through_non_strings() -> None:
+    assert Settings.normalize_log_level(None) is None
+    assert Settings.normalize_log_level(10) == 10
+
+
+def test_cors_origins_none_becomes_empty_list() -> None:
+    assert Settings.parse_cors_origins(None) == []
+
+
+def test_is_development_property(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ENVIRONMENT", "development")
+    monkeypatch.delenv("BACKEND_CORS_ORIGINS", raising=False)
+    settings = Settings(_env_file=None)
+    assert settings.is_development is True
+
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    assert Settings(_env_file=None).is_development is False
+
+
+def test_explicit_log_json_overrides_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ENVIRONMENT", "development")
+    monkeypatch.setenv("LOG_JSON", "true")
+    assert Settings(_env_file=None).use_json_logging is True
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv(
+        "BACKEND_CORS_ORIGINS",
+        "https://pixel-bloom.netlify.app",
+    )
+    monkeypatch.setenv("LOG_JSON", "false")
+    assert Settings(_env_file=None).use_json_logging is False
+
+
+def test_development_exposes_redoc(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ENVIRONMENT", "development")
+    monkeypatch.delenv("BACKEND_CORS_ORIGINS", raising=False)
+    settings = Settings(_env_file=None)
+    assert settings.redoc_url == "/redoc"

@@ -147,4 +147,48 @@ describe("generateArt", () => {
       message: expect.stringMatching(/timed out/i),
     });
   });
+
+  it("uses NEXT_PUBLIC_API_TIMEOUT_MS when valid", async () => {
+    const original = process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+    process.env.NEXT_PUBLIC_API_TIMEOUT_MS = "1234";
+    mockFetchResponse(sampleResponse);
+
+    try {
+      await generateArt(request);
+      const init = jest.mocked(global.fetch).mock.calls.at(-1)?.[1] as
+        | RequestInit
+        | undefined;
+      expect(init?.signal).toBeDefined();
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+      } else {
+        process.env.NEXT_PUBLIC_API_TIMEOUT_MS = original;
+      }
+    }
+  });
+
+  it("falls back when NEXT_PUBLIC_API_TIMEOUT_MS is invalid", async () => {
+    const original = process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+    process.env.NEXT_PUBLIC_API_TIMEOUT_MS = "nope";
+    mockFetchResponse(sampleResponse);
+
+    try {
+      await expect(generateArt(request)).resolves.toEqual(sampleResponse);
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+      } else {
+        process.env.NEXT_PUBLIC_API_TIMEOUT_MS = original;
+      }
+    }
+  });
+
+  it("merges a user AbortSignal with the timeout signal", async () => {
+    mockFetchResponse(sampleResponse);
+    const controller = new AbortController();
+    await expect(generateArt(request, controller.signal)).resolves.toEqual(
+      sampleResponse,
+    );
+  });
 });

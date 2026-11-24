@@ -2,6 +2,7 @@ import {
   GALLERY_MAX_ITEMS,
   GALLERY_STORAGE_KEY,
   addGalleryItem,
+  captureThumbnail,
   createGalleryItem,
   isGalleryItem,
   loadGalleryItems,
@@ -96,5 +97,51 @@ describe("gallery helpers", () => {
     expect(item.id).toBeTruthy();
     expect(item.createdAt).toBeTruthy();
     expect(item.algorithm).toBe("circles");
+  });
+
+  it("rejects unknown palette ids", () => {
+    expect(isGalleryItem({ ...makeItem(), paletteId: "neon" })).toBe(false);
+  });
+
+  it("returns empty when stored JSON is not an array", () => {
+    expect(parseGalleryItems(JSON.stringify({ nope: true }))).toEqual([]);
+  });
+
+  it("captures a JPEG thumbnail from a canvas", () => {
+    const source = document.createElement("canvas");
+    source.width = 400;
+    source.height = 200;
+
+    const drawImage = jest.fn();
+    const fillRect = jest.fn();
+    const toDataURL = jest
+      .fn()
+      .mockReturnValue("data:image/jpeg;base64,thumb");
+
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      drawImage,
+      fillRect,
+      fillStyle: "",
+    } as unknown as CanvasRenderingContext2D);
+    jest
+      .spyOn(HTMLCanvasElement.prototype, "toDataURL")
+      .mockImplementation(toDataURL);
+
+    const thumb = captureThumbnail(source, 160);
+    expect(thumb).toBe("data:image/jpeg;base64,thumb");
+    expect(fillRect).toHaveBeenCalled();
+    expect(drawImage).toHaveBeenCalled();
+  });
+
+  it("falls back to source toDataURL when 2d context is unavailable", () => {
+    const source = document.createElement("canvas");
+    source.width = 100;
+    source.height = 100;
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+    jest
+      .spyOn(HTMLCanvasElement.prototype, "toDataURL")
+      .mockReturnValue("data:image/jpeg;base64,fallback");
+
+    expect(captureThumbnail(source)).toBe("data:image/jpeg;base64,fallback");
   });
 });

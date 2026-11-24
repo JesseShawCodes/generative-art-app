@@ -52,4 +52,17 @@ describe("generateArtSync", () => {
     expect(typeof result.seed).toBe("number");
     expect(result.seed).toBeGreaterThanOrEqual(0);
   });
+
+  it("throws for an unknown algorithm", () => {
+    expect(() =>
+      generateArtSync({
+        // @ts-expect-error intentional invalid algorithm
+        algorithm: "spirals",
+        width: 100,
+        height: 100,
+        num_elements: 1,
+        parameters: {},
+      }),
+    ).toThrow(/Unknown algorithm/);
+  });
 });

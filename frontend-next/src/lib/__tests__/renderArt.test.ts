@@ -61,4 +61,38 @@ describe("renderArt", () => {
     expect(context.moveTo).toHaveBeenCalled();
     expect(context.lineTo).toHaveBeenCalled();
   });
+
+  it("strokes unfilled polygons and skips degenerate ones", () => {
+    const context = createMockContext();
+    renderArt(
+      context,
+      [
+        {
+          type: "polygon",
+          points: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 0, y: 1 },
+          ],
+          color: "#abc",
+          filled: false,
+          opacity: 1,
+        },
+        {
+          type: "polygon",
+          points: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+          ],
+          color: "#000",
+          filled: true,
+          opacity: 1,
+        },
+      ],
+      50,
+      50,
+    );
+
+    expect(context.stroke).toHaveBeenCalled();
+  });
 });

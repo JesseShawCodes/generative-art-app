@@ -161,4 +161,90 @@ describe("Home", () => {
       }),
     );
   });
+
+  it("saves to gallery and can load a saved item back", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Save to gallery/i }),
+      ).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Save to gallery/i }));
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /Saved to gallery/i,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /^Load$/i }));
+
+    const seedValue = (screen.getByLabelText(/^Seed$/i) as HTMLInputElement)
+      .value;
+    expect(seedValue).toMatch(/^\d+$/);
+  });
+
+  it("clears the seed input when regenerating", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    const seedInput = screen.getByLabelText(/^Seed$/i) as HTMLInputElement;
+    fireEvent.change(seedInput, { target: { value: "12345" } });
+    expect(String(seedInput.value)).toBe("12345");
+
+    fireEvent.click(screen.getByRole("button", { name: /Regenerate/i }));
+    expect(String(seedInput.value)).toBe("");
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Save to gallery/i }),
+      ).toBeEnabled();
+    });
+  });
+
+  it("ignores non-integer seed input when generating", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    fireEvent.change(screen.getByLabelText(/^Seed$/i), {
+      target: { value: "abc" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Generate$/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Save to gallery/i }),
+      ).toBeEnabled();
+    });
+  });
+
+  it("reuses the last seed into the seed input", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /^reuse$/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^reuse$/i }));
+    const seedValue = (screen.getByLabelText(/^Seed$/i) as HTMLInputElement)
+      .value;
+    expect(seedValue).toMatch(/^\d+$/);
+  });
 });
