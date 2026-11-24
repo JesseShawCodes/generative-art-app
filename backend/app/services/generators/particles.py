@@ -9,7 +9,7 @@ from app.schemas.generation import (
     CircleElement,
     LineElement,
 )
-from app.services.generators.base import as_float, as_int, clamp, random_color
+from app.services.generators.base import as_float, as_int, clamp, pick_color
 
 
 def generate_particles(
@@ -29,7 +29,7 @@ def generate_particles(
         angle = rng.uniform(0, math.tau)
         vx = math.cos(angle) * speed
         vy = math.sin(angle) * speed
-        color = random_color(rng)
+        color = pick_color(rng, params)
         opacity = rng.uniform(0.45, 1.0)
 
         prev_x, prev_y = x, y

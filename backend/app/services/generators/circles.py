@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 
 from app.schemas.generation import ArtElement, ArtGenerationRequest, CircleElement
-from app.services.generators.base import as_float, random_color
+from app.services.generators.base import as_float, pick_color
 
 
 def generate_circles(
@@ -21,7 +21,7 @@ def generate_circles(
                 x=rng.uniform(0, request.width),
                 y=rng.uniform(0, request.height),
                 radius=rng.uniform(min_radius, max_radius),
-                color=random_color(rng),
+                color=pick_color(rng, params),
                 opacity=rng.uniform(0.55, 1.0),
             )
         )

@@ -1,249 +1,187 @@
 "use client";
-import { useRef, useEffect, useState, useCallback } from "react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCanvas } from "./CanvasContext";
-import RangeField from "./components/RangeField";
-import { generateArt } from "@/lib/api";
-import { renderArt } from "@/lib/renderArt";
-import {
-  ALGORITHMS,
-  type Algorithm,
-  type ArtElement,
-  type ArtGenerationRequest,
-} from "@/types/art";
+import ControlPanel from "./components/studio/ControlPanel";
+import GalleryPanel from "./components/studio/GalleryPanel";
+import ResponsiveCanvas from "./components/studio/ResponsiveCanvas";
+import { useGallery } from "./hooks/useGallery";
+import { useGenerateArt } from "./hooks/useGenerateArt";
+import { captureThumbnail, type GalleryItem } from "@/lib/gallery";
+import type { GenerationEngine } from "@/lib/generationEngine";
+import { colorsForPalette, type PaletteId } from "@/lib/palettes";
+import type { Algorithm } from "@/types/art";
 
 const INITIAL_WIDTH = 800;
 const INITIAL_HEIGHT = 600;
 const INITIAL_NUM_ELEMENTS = 50;
 const INITIAL_ALGORITHM: Algorithm = "circles";
-
-function buildRequest(
-  algorithm: Algorithm,
-  width: number,
-  height: number,
-  numElements: number,
-  seed: number | null,
-): ArtGenerationRequest {
-  return {
-    algorithm,
-    width,
-    height,
-    num_elements: numElements,
-    ...(seed !== null ? { seed } : {}),
-  };
-}
+const INITIAL_ENGINE: GenerationEngine = "local";
 
 export default function Home() {
-  const localCanvasRef = useRef<HTMLCanvasElement>(null);
-  const { canvasRef } = useCanvas();
-  const [artData, setArtData] = useState<ArtElement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { canvasRef, exportMetaRef } = useCanvas();
   const [algorithm, setAlgorithm] = useState<Algorithm>(INITIAL_ALGORITHM);
+  const [engine, setEngine] = useState<GenerationEngine>(INITIAL_ENGINE);
   const [width, setWidth] = useState(INITIAL_WIDTH);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
   const [numElements, setNumElements] = useState(INITIAL_NUM_ELEMENTS);
   const [seedInput, setSeedInput] = useState("");
-  const [lastSeed, setLastSeed] = useState<number | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const [paletteId, setPaletteId] = useState<PaletteId>("bloom");
+  const [customColors, setCustomColors] = useState<string[]>([]);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (localCanvasRef.current) {
-      canvasRef.current = localCanvasRef.current;
-    }
-  }, [canvasRef]);
+  const { items, saveItem, deleteItem } = useGallery();
 
-  const parsedSeed = (() => {
+  const parsedSeed = useMemo(() => {
     if (seedInput.trim() === "") return null;
     const value = Number(seedInput);
     return Number.isInteger(value) && value >= 0 ? value : null;
-  })();
+  }, [seedInput]);
 
-  const fetchArt = useCallback(async () => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+  const colors = useMemo(
+    () => colorsForPalette(paletteId, customColors),
+    [paletteId, customColors],
+  );
 
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await generateArt(
-        buildRequest(algorithm, width, height, numElements, parsedSeed),
-        controller.signal,
-      );
-      setArtData(data.elements);
-      setLastSeed(data.seed);
-    } catch (err) {
-      if (controller.signal.aborted) return;
-      console.error("Error fetching art:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate art");
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
-  }, [algorithm, width, height, numElements, parsedSeed]);
+  const { artData, loading, error, lastSeed, generate, regenerate } =
+    useGenerateArt({
+      algorithm,
+      width,
+      height,
+      numElements,
+      seed: parsedSeed,
+      colors,
+      engine,
+    });
 
-  // Initial load only — control changes wait for the Generate button.
   useEffect(() => {
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    void (async () => {
-      try {
-        const data = await generateArt(
-          buildRequest(
-            INITIAL_ALGORITHM,
-            INITIAL_WIDTH,
-            INITIAL_HEIGHT,
-            INITIAL_NUM_ELEMENTS,
-            null,
-          ),
-          controller.signal,
-        );
-        if (!controller.signal.aborted) {
-          setArtData(data.elements);
-          setLastSeed(data.seed);
-        }
-      } catch (err) {
-        if (controller.signal.aborted) return;
-        console.error("Error fetching art:", err);
-        setError(err instanceof Error ? err.message : "Failed to generate art");
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      controller.abort();
+    exportMetaRef.current = {
+      algorithm,
+      seed: lastSeed,
     };
+  }, [algorithm, lastSeed, exportMetaRef]);
+
+  const handleRegenerate = () => {
+    setSeedInput("");
+    regenerate();
+  };
+
+  const handleSaveToGallery = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || lastSeed === null || loading) return;
+
+    saveItem({
+      algorithm,
+      width,
+      height,
+      numElements,
+      seed: lastSeed,
+      paletteId,
+      customColors,
+      engine,
+      thumbnail: captureThumbnail(canvas),
+    });
+    setSaveMessage("Saved to gallery");
+  }, [
+    algorithm,
+    canvasRef,
+    customColors,
+    engine,
+    height,
+    lastSeed,
+    loading,
+    numElements,
+    paletteId,
+    saveItem,
+    width,
+  ]);
+
+  useEffect(() => {
+    if (!saveMessage) return;
+    const timer = window.setTimeout(() => setSaveMessage(null), 2000);
+    return () => window.clearTimeout(timer);
+  }, [saveMessage]);
+
+  const handleLoadFromGallery = useCallback((item: GalleryItem) => {
+    setAlgorithm(item.algorithm);
+    setWidth(item.width);
+    setHeight(item.height);
+    setNumElements(item.numElements);
+    setSeedInput(String(item.seed));
+    setPaletteId(item.paletteId);
+    setCustomColors(item.customColors);
+    setEngine(item.engine);
   }, []);
 
-  useEffect(() => {
-    const canvas = localCanvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
-    renderArt(context, artData, width, height);
-  }, [artData, width, height]);
-
   return (
-    <div className="mx-auto w-full max-w-6xl px-4">
+    <div className="mx-auto w-full max-w-7xl px-4">
       <main className="py-6">
-        <div className="max-w-xl">
-          <div className="mb-3">
-            <label
-              className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
-              htmlFor="algorithm-select"
-            >
-              Algorithm
-            </label>
-            <select
-              id="algorithm-select"
-              value={algorithm}
-              onChange={(event) =>
-                setAlgorithm(event.target.value as Algorithm)
-              }
-              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
-            >
-              {ALGORITHMS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <p className="mb-6 max-w-xl text-sm text-neutral-600 dark:text-night-text">
+          Tweak parameters live, lock a seed to refine a composition, and export
+          as PNG or SVG. Local mode keeps the UI snappy via a Web Worker; Server
+          mode uses the Python backend.
+        </p>
 
-          <RangeField
-            id="width-input"
-            label="Width"
-            min={100}
-            max={1000}
-            value={width}
-            onValueChange={setWidth}
-          />
-          <RangeField
-            id="height-input"
-            label="Height"
-            min={100}
-            max={1000}
-            value={height}
-            onValueChange={setHeight}
-          />
-          <RangeField
-            id="elements-input"
-            label="Elements"
-            min={1}
-            max={500}
-            value={numElements}
-            onValueChange={setNumElements}
-          />
-
-          <div className="mb-3">
-            <label
-              className="mb-1 block font-semibold text-bloom-dark dark:text-night-strong"
-              htmlFor="seed-input"
-            >
-              Seed
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="seed-input"
-                type="number"
-                min={0}
-                step={1}
-                value={seedInput}
-                onChange={(event) => setSeedInput(event.target.value)}
-                placeholder="Leave empty for random"
-                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[#363636] dark:border-night-border dark:bg-night-surface dark:text-night-strong"
-              />
-              <button
-                type="button"
-                onClick={() => setSeedInput("")}
-                className="shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-[#363636] hover:border-bloom-pink dark:border-night-border dark:bg-night-surface dark:text-night-strong"
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <ResponsiveCanvas
+              canvasRef={canvasRef}
+              artData={artData}
+              width={width}
+              height={height}
+            />
+            {loading && (
+              <p className="mt-2 text-xs text-neutral-500 dark:text-night-text">
+                Generating…
+              </p>
+            )}
+            {saveMessage && (
+              <p
+                role="status"
+                className="mt-2 text-xs text-bloom dark:text-bloom-pink"
               >
-                Clear
-              </button>
-            </div>
-            {lastSeed !== null && (
-              <p className="mt-1 text-xs text-neutral-500 dark:text-night-text">
-                Last seed: {lastSeed}{" "}
-                <button
-                  type="button"
-                  onClick={() => setSeedInput(String(lastSeed))}
-                  className="underline hover:text-bloom-pink"
-                >
-                  reuse
-                </button>
+                {saveMessage}
               </p>
             )}
           </div>
 
-          <button
-            onClick={() => void fetchArt()}
-            disabled={loading}
-            className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-[#363636] hover:border-bloom-pink disabled:cursor-not-allowed disabled:opacity-50 dark:border-night-border dark:bg-night-surface dark:text-night-strong"
-          >
-            {loading ? "Generating..." : "Generate New Art"}
-          </button>
-          {error && (
-            <p
-              role="alert"
-              className="mt-3 text-sm text-bloom dark:text-bloom-pink"
-            >
-              {error}
-            </p>
-          )}
+          <ControlPanel
+            algorithm={algorithm}
+            onAlgorithmChange={setAlgorithm}
+            engine={engine}
+            onEngineChange={setEngine}
+            width={width}
+            onWidthChange={setWidth}
+            height={height}
+            onHeightChange={setHeight}
+            numElements={numElements}
+            onNumElementsChange={setNumElements}
+            seedInput={seedInput}
+            onSeedInputChange={setSeedInput}
+            lastSeed={lastSeed}
+            onReuseSeed={() => {
+              if (lastSeed !== null) setSeedInput(String(lastSeed));
+            }}
+            onClearSeed={() => setSeedInput("")}
+            paletteId={paletteId}
+            onPaletteIdChange={setPaletteId}
+            customColors={customColors}
+            onCustomColorsChange={setCustomColors}
+            loading={loading}
+            error={error}
+            onGenerate={generate}
+            onRegenerate={handleRegenerate}
+            canvasRef={canvasRef}
+            artData={artData}
+          />
         </div>
 
-        <canvas
-          ref={localCanvasRef}
-          width={width}
-          height={height}
-          className="mt-5 border border-[#ccc] bg-[#333]"
+        <GalleryPanel
+          items={items}
+          onSave={handleSaveToGallery}
+          onLoad={handleLoadFromGallery}
+          onDelete={deleteItem}
+          canSave={!loading && lastSeed !== null && artData.length > 0}
         />
       </main>
     </div>

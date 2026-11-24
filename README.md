@@ -60,7 +60,7 @@ This writes `frontend-next/openapi/openapi.json` and `frontend-next/src/types/op
 
 `POST /generate-art` dispatches to pluggable algorithms (`circles`, `flow_field`,
 `geometric`, `particles`). The backend returns drawable geometry; the React
-canvas renders it.
+studio canvas renders it and can export PNG or SVG.
 
 ```json
 {
@@ -69,12 +69,42 @@ canvas renders it.
   "height": 800,
   "num_elements": 150,
   "seed": 48291,
-  "parameters": { "min_radius": 5, "max_radius": 50 }
+  "parameters": {
+    "min_radius": 5,
+    "max_radius": 50,
+    "colors": ["#ff507c", "#82243b", "#f4eaed"]
+  }
 }
 ```
 
 `seed` is first-class: omit it for a random seed (echoed in the response), or
 pass one to regenerate the same composition.
+
+`parameters.colors` is an optional list of hex colors. When provided, generators
+pick only from that palette; omit it for unconstrained random colors.
+
+## Studio (frontend)
+
+The home page is a creative studio: live (debounced) parameter controls, seed
+lock/reuse, preset and custom palettes, regenerate without a page refresh, and
+PNG/SVG export.
+
+### Generation engines
+
+| Engine | Where it runs | Notes |
+|--------|---------------|-------|
+| **Local** (default) | Web Worker in the browser | Keeps the UI responsive; uses a seeded mulberry32 PRNG |
+| **Server** | Python FastAPI | Same algorithms as before; useful for parity with the API / future heavy work |
+
+Seeds are **not** interchangeable across engines (different RNGs). Gallery entries
+store which engine produced them so reload stays consistent.
+
+### Gallery
+
+Saved compositions are stored in the browser via `localStorage` (key
+`pixelbloom-gallery`, capped at 40 items). Each entry keeps algorithm, seed,
+engine, dimensions, element count, palette, and a small thumbnail so you can
+reload the same composition later. Nothing is synced to the server yet.
 
 ## CI
 

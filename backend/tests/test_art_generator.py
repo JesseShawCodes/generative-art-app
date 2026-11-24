@@ -79,3 +79,37 @@ def test_each_algorithm_returns_expected_element_types() -> None:
         )
         actual_types = {element.type for element in result.elements}
         assert actual_types == expected_types
+
+
+def test_palette_colors_constrain_output() -> None:
+    palette = ["#ff507c", "#82243b", "#f4eaed"]
+    result = generate_art(
+        ArtGenerationRequest(
+            algorithm=Algorithm.CIRCLES,
+            width=200,
+            height=200,
+            num_elements=20,
+            seed=11,
+            parameters={"colors": palette},
+        )
+    )
+    used = {element.color for element in result.elements}
+    assert used
+    assert used <= set(palette)
+
+
+def test_palette_colors_apply_across_algorithms() -> None:
+    palette = ["#112233", "#aabbcc"]
+    for algorithm in Algorithm:
+        result = generate_art(
+            ArtGenerationRequest(
+                algorithm=algorithm,
+                width=200,
+                height=200,
+                num_elements=6,
+                seed=3,
+                parameters={"colors": palette},
+            )
+        )
+        used = {element.color for element in result.elements}
+        assert used <= set(palette)

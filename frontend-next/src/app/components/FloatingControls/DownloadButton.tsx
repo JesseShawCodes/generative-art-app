@@ -1,21 +1,21 @@
-"use client"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { useCanvas } from '../../CanvasContext';
+"use client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { useCanvas } from "../../CanvasContext";
+import { buildArtFilename, triggerDownload } from "@/lib/download";
 
 function DownloadButton() {
-  const { canvasRef } = useCanvas();
+  const { canvasRef, exportMetaRef } = useCanvas();
 
   const handleDownload = () => {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const link = document.createElement('a');
-      const [randomValue = 0] = window.crypto.getRandomValues(new Uint32Array(1));
-      const randomString = randomValue.toString(36);
-      link.download = `pixel-bloom-${randomString}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
+    if (!canvasRef.current) return;
+    const meta = exportMetaRef.current;
+    const filename = buildArtFilename(
+      meta?.algorithm ?? "art",
+      meta?.seed ?? null,
+      "png",
+    );
+    triggerDownload(canvasRef.current.toDataURL("image/png"), filename);
   };
 
   return (
@@ -28,7 +28,7 @@ function DownloadButton() {
         onClick={handleDownload}
         type="button"
       >
-        <FontAwesomeIcon icon={faDownload} className='download-icon' />
+        <FontAwesomeIcon icon={faDownload} className="download-icon" />
       </button>
     </div>
   );
