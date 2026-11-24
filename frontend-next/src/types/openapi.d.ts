@@ -4,7 +4,41 @@
  */
 
 export interface paths {
-    "/generate-art": {
+    "/api/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health_api_v1_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/algorithms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Algorithms */
+        get: operations["list_algorithms_api_v1_algorithms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/generate-art": {
         parameters: {
             query?: never;
             header?: never;
@@ -14,24 +48,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Generate Art Endpoint */
-        post: operations["generate_art_endpoint_generate_art_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Root */
-        get: operations["root__get"];
-        put?: never;
-        post?: never;
+        post: operations["generate_art_endpoint_api_v1_generate_art_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -47,6 +64,17 @@ export interface components {
          * @enum {string}
          */
         Algorithm: "circles" | "flow_field" | "geometric" | "particles";
+        /** AlgorithmInfo */
+        AlgorithmInfo: {
+            id: components["schemas"]["Algorithm"];
+            /** Label */
+            label: string;
+        };
+        /** AlgorithmsResponse */
+        AlgorithmsResponse: {
+            /** Algorithms */
+            algorithms: components["schemas"]["AlgorithmInfo"][];
+        };
         /** ArtGenerationRequest */
         ArtGenerationRequest: {
             /** @default circles */
@@ -113,8 +141,21 @@ export interface components {
         };
         /** HealthResponse */
         HealthResponse: {
-            /** Message */
+            /**
+             * Status
+             * @default ok
+             * @constant
+             */
+            status: "ok";
+            /**
+             * Message
+             * @default Generative Art API is running!
+             */
             message: string;
+            /** Environment */
+            environment: string;
+            /** Version */
+            version: string;
         };
         /** LineElement */
         LineElement: {
@@ -195,7 +236,47 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    generate_art_endpoint_generate_art_post: {
+    health_api_v1_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    list_algorithms_api_v1_algorithms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlgorithmsResponse"];
+                };
+            };
+        };
+    };
+    generate_art_endpoint_api_v1_generate_art_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -224,26 +305,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    root__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HealthResponse"];
                 };
             };
         };

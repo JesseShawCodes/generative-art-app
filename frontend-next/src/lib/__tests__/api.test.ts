@@ -89,7 +89,7 @@ describe("generateArt", () => {
 
     await expect(generateArt(request)).resolves.toEqual(sampleResponse);
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/generate-art"),
+      expect.stringContaining("/api/v1/generate-art"),
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify(request),
@@ -132,6 +132,19 @@ describe("generateArt", () => {
     await expect(generateArt(request)).rejects.toMatchObject({
       name: "ApiError",
       message: expect.stringMatching(/Invalid JSON/),
+    });
+  });
+
+  it("throws an ApiError when the request times out", async () => {
+    jest.mocked(global.fetch).mockRejectedValueOnce(
+      Object.assign(new Error("The operation was aborted"), {
+        name: "TimeoutError",
+      }),
+    );
+
+    await expect(generateArt(request, undefined, 5)).rejects.toMatchObject({
+      name: "ApiError",
+      message: expect.stringMatching(/timed out/i),
     });
   });
 });

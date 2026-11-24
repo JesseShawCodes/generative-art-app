@@ -58,9 +58,10 @@ This writes `frontend-next/openapi/openapi.json` and `frontend-next/src/types/op
 
 ## Generation engine
 
-`POST /generate-art` dispatches to pluggable algorithms (`circles`, `flow_field`,
-`geometric`, `particles`). The backend returns drawable geometry; the React
-studio canvas renders it and can export PNG or SVG.
+`POST /api/v1/generate-art` dispatches to pluggable algorithms (`circles`,
+`flow_field`, `geometric`, `particles`). The backend returns drawable geometry;
+the React studio canvas renders it and can export PNG or SVG. Health and
+algorithm discovery live at `/api/v1/health` and `/api/v1/algorithms`.
 
 ```json
 {

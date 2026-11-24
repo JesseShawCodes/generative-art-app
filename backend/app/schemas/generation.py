@@ -11,6 +11,14 @@ class Algorithm(str, Enum):
     PARTICLES = "particles"
 
 
+ALGORITHM_LABELS: dict[Algorithm, str] = {
+    Algorithm.CIRCLES: "Circles",
+    Algorithm.FLOW_FIELD: "Flow Field",
+    Algorithm.GEOMETRIC: "Geometric",
+    Algorithm.PARTICLES: "Particles",
+}
+
+
 class Point(BaseModel):
     x: float
     y: float
@@ -73,4 +81,16 @@ Line = LineElement
 
 
 class HealthResponse(BaseModel):
-    message: str
+    status: Literal["ok"] = "ok"
+    message: str = "Generative Art API is running!"
+    environment: str
+    version: str
+
+
+class AlgorithmInfo(BaseModel):
+    id: Algorithm
+    label: str
+
+
+class AlgorithmsResponse(BaseModel):
+    algorithms: list[AlgorithmInfo]

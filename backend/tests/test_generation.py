@@ -4,9 +4,11 @@ from app.main import app
 
 client = TestClient(app)
 
+GENERATE_PATH = "/api/v1/generate-art"
+
 
 def test_generate_art_default_payload() -> None:
-    response = client.post("/generate-art", json={})
+    response = client.post(GENERATE_PATH, json={})
     assert response.status_code == 200
     body = response.json()
     assert body["algorithm"] == "circles"
@@ -25,7 +27,7 @@ def test_generate_art_custom_count_and_seed() -> None:
         "seed": 123,
         "parameters": {"min_radius": 5, "max_radius": 50},
     }
-    response = client.post("/generate-art", json=payload)
+    response = client.post(GENERATE_PATH, json=payload)
     assert response.status_code == 200
     body = response.json()
     assert body["seed"] == 123
@@ -46,14 +48,23 @@ def test_generate_art_reproducible_via_api() -> None:
         "num_elements": 6,
         "seed": 55,
     }
-    first = client.post("/generate-art", json=payload).json()
-    second = client.post("/generate-art", json=payload).json()
+    first = client.post(GENERATE_PATH, json=payload).json()
+    second = client.post(GENERATE_PATH, json=payload).json()
     assert first == second
 
 
 def test_generate_art_rejects_unknown_algorithm() -> None:
     response = client.post(
-        "/generate-art",
+        GENERATE_PATH,
         json={"algorithm": "not-a-real-algo"},
     )
     assert response.status_code == 422
+
+
+def test_list_algorithms() -> None:
+    response = client.get("/api/v1/algorithms")
+    assert response.status_code == 200
+    body = response.json()
+    ids = {item["id"] for item in body["algorithms"]}
+    assert ids == {"circles", "flow_field", "geometric", "particles"}
+    assert all("label" in item for item in body["algorithms"])

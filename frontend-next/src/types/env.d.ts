@@ -4,5 +4,7 @@ declare namespace NodeJS {
     NEXT_PUBLIC_API_URL?: string;
     /** Name shown in the footer copyright line */
     NEXT_PUBLIC_NAME?: string;
+    /** Client request timeout for API calls, in milliseconds */
+    NEXT_PUBLIC_API_TIMEOUT_MS?: string;
   }
 }
