@@ -1,7 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faInstagram, faLinkedin, faXTwitter,
-} from '@fortawesome/free-brands-svg-icons';
 import FooterGrid from './FooterGrid';
 
 function Footer() {
