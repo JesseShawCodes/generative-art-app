@@ -71,7 +71,7 @@ export default function GalleryPanel({
                     {algorithmLabel(item.algorithm)}
                   </p>
                   <p className="truncate font-mono text-[11px] text-neutral-500 dark:text-night-text">
-                    seed {item.seed}
+                    seed {item.seed} · {item.engine}
                   </p>
                 </div>
               </button>

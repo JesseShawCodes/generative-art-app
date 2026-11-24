@@ -1,3 +1,7 @@
+import {
+  isGenerationEngine,
+  type GenerationEngine,
+} from "@/lib/generationEngine";
 import type { PaletteId } from "@/lib/palettes";
 import type { Algorithm } from "@/types/art";
 
@@ -14,6 +18,8 @@ export interface GalleryItem {
   seed: number;
   paletteId: PaletteId;
   customColors: string[];
+  /** Which engine produced this composition (seeds are not portable across engines). */
+  engine: GenerationEngine;
   /** Compact JPEG data URL for the grid preview. */
   thumbnail: string;
 }
@@ -43,6 +49,8 @@ function isPaletteId(value: unknown): value is PaletteId {
 export function isGalleryItem(value: unknown): value is GalleryItem {
   if (typeof value !== "object" || value === null) return false;
   const item = value as Record<string, unknown>;
+  const engineOk =
+    item.engine === undefined || isGenerationEngine(item.engine);
   return (
     typeof item.id === "string" &&
     typeof item.createdAt === "string" &&
@@ -54,8 +62,19 @@ export function isGalleryItem(value: unknown): value is GalleryItem {
     isPaletteId(item.paletteId) &&
     Array.isArray(item.customColors) &&
     item.customColors.every((c) => typeof c === "string") &&
+    engineOk &&
     typeof item.thumbnail === "string"
   );
+}
+
+/** Normalize legacy gallery rows that predate the engine field. */
+export function normalizeGalleryItem(
+  item: GalleryItem & { engine?: GenerationEngine },
+): GalleryItem {
+  return {
+    ...item,
+    engine: item.engine ?? "server",
+  };
 }
 
 export function parseGalleryItems(raw: string | null): GalleryItem[] {
@@ -63,7 +82,7 @@ export function parseGalleryItems(raw: string | null): GalleryItem[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isGalleryItem);
+    return parsed.filter(isGalleryItem).map(normalizeGalleryItem);
   } catch {
     return [];
   }

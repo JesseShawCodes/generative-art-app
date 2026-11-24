@@ -4,12 +4,18 @@ import RangeField from "../RangeField";
 import PalettePicker from "./PalettePicker";
 import ExportMenu from "./ExportMenu";
 import type { RefObject } from "react";
+import {
+  GENERATION_ENGINES,
+  type GenerationEngine,
+} from "@/lib/generationEngine";
 import type { PaletteId } from "@/lib/palettes";
 import { ALGORITHMS, type Algorithm, type ArtElement } from "@/types/art";
 
 interface ControlPanelProps {
   algorithm: Algorithm;
   onAlgorithmChange: (value: Algorithm) => void;
+  engine: GenerationEngine;
+  onEngineChange: (value: GenerationEngine) => void;
   width: number;
   onWidthChange: (value: number) => void;
   height: number;
@@ -36,6 +42,8 @@ interface ControlPanelProps {
 export default function ControlPanel({
   algorithm,
   onAlgorithmChange,
+  engine,
+  onEngineChange,
   width,
   onWidthChange,
   height,
@@ -82,6 +90,43 @@ export default function ControlPanel({
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mb-3">
+          <p className="mb-1 font-semibold text-bloom-dark dark:text-night-strong">
+            Engine
+          </p>
+          <div
+            className="flex gap-2"
+            role="radiogroup"
+            aria-label="Generation engine"
+          >
+            {GENERATION_ENGINES.map((option) => {
+              const selected = engine === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => onEngineChange(option.value)}
+                  title={option.description}
+                  className={`flex-1 rounded-md border px-3 py-2 text-sm ${
+                    selected
+                      ? "border-bloom-pink bg-bloom-white text-bloom-dark dark:bg-night-surface dark:text-night-strong"
+                      : "border-neutral-300 bg-white text-[#363636] hover:border-bloom-pink dark:border-night-border dark:bg-night-raised dark:text-night-text"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-night-text">
+            {engine === "local"
+              ? "Runs in a Web Worker on this device."
+              : "Uses the Python backend API."}
+          </p>
         </div>
 
         <RangeField

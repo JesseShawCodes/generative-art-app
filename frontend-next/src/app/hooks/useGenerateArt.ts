@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateArt } from "@/lib/api";
+import type { GenerationEngine } from "@/lib/generationEngine";
+import { generateArtLocal } from "@/lib/generators/client";
 import type {
   Algorithm,
   ArtElement,
   ArtGenerationRequest,
+  ArtGenerationResponse,
 } from "@/types/art";
 
 const DEBOUNCE_MS = 300;
@@ -15,9 +18,10 @@ export interface GenerateParams {
   width: number;
   height: number;
   numElements: number;
-  /** Parsed seed from the input; null means ask backend for a random seed. */
+  /** Parsed seed from the input; null means ask for a random seed. */
   seed: number | null;
   colors?: string[];
+  engine: GenerationEngine;
 }
 
 function buildRequest(
@@ -35,6 +39,24 @@ function buildRequest(
       ? { parameters: { colors: params.colors } }
       : { parameters: {} }),
   };
+}
+
+function isAbortError(err: unknown): boolean {
+  return (
+    (err instanceof DOMException && err.name === "AbortError") ||
+    (err instanceof Error && err.name === "AbortError")
+  );
+}
+
+async function runEngine(
+  engine: GenerationEngine,
+  request: ArtGenerationRequest,
+  signal: AbortSignal,
+): Promise<ArtGenerationResponse> {
+  if (engine === "local") {
+    return generateArtLocal(request, signal);
+  }
+  return generateArt(request, signal);
 }
 
 export function useGenerateArt(params: GenerateParams) {
@@ -59,15 +81,17 @@ export function useGenerateArt(params: GenerateParams) {
     setLoading(true);
     setError(null);
     try {
-      const data = await generateArt(
-        buildRequest(paramsRef.current, seedOverride),
+      const current = paramsRef.current;
+      const data = await runEngine(
+        current.engine,
+        buildRequest(current, seedOverride),
         controller.signal,
       );
       if (controller.signal.aborted) return;
       setArtData(data.elements);
       setLastSeed(data.seed);
     } catch (err) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || isAbortError(err)) return;
       console.error("Error fetching art:", err);
       setError(err instanceof Error ? err.message : "Failed to generate art");
     } finally {
@@ -77,17 +101,14 @@ export function useGenerateArt(params: GenerateParams) {
     }
   }, []);
 
-  /** Explicit generate using current seed input (or random if empty). */
   const generate = useCallback(() => {
     void runGenerate();
   }, [runGenerate]);
 
-  /** Force a fresh random composition (ignore seed input for this call). */
   const regenerate = useCallback(() => {
     void runGenerate(null);
   }, [runGenerate]);
 
-  // Initial load once.
   useEffect(() => {
     if (initialDoneRef.current) return;
     initialDoneRef.current = true;
@@ -99,7 +120,6 @@ export function useGenerateArt(params: GenerateParams) {
 
   const colorsKey = params.colors?.join(",") ?? "";
 
-  // Debounced live updates when controls change (skip the first mount).
   useEffect(() => {
     if (skipDebounceRef.current) {
       skipDebounceRef.current = false;
@@ -119,6 +139,7 @@ export function useGenerateArt(params: GenerateParams) {
     params.height,
     params.numElements,
     params.seed,
+    params.engine,
     colorsKey,
     runGenerate,
   ]);

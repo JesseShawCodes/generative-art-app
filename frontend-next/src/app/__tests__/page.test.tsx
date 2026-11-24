@@ -84,6 +84,7 @@ describe("Home", () => {
       screen.getByRole("button", { name: /Regenerate/i }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/Algorithm/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Generation engine/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Seed$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Color palette/i)).toBeInTheDocument();
     expect(
@@ -101,28 +102,7 @@ describe("Home", () => {
     expect(document.querySelector("canvas")).toBeInTheDocument();
   });
 
-  it("surfaces API errors to the user", async () => {
-    render(
-      <CanvasProvider>
-        <Home />
-      </CanvasProvider>,
-    );
-
-    const generateButton = await screen.findByRole("button", {
-      name: /^Generate$/i,
-    });
-
-    mockedGenerateArt.mockRejectedValueOnce(
-      new Error("NEXT_PUBLIC_API_URL is not set"),
-    );
-    fireEvent.click(generateButton);
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /NEXT_PUBLIC_API_URL is not set/,
-    );
-  });
-
-  it("sends palette colors in the generate request", async () => {
+  it("uses local generation by default without calling the API", async () => {
     render(
       <CanvasProvider>
         <Home />
@@ -130,6 +110,45 @@ describe("Home", () => {
     );
 
     await screen.findByRole("button", { name: /^Generate$/i });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Save to gallery/i })).toBeEnabled();
+    });
+    expect(mockedGenerateArt).not.toHaveBeenCalled();
+  });
+
+  it("surfaces API errors in server mode", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    fireEvent.click(screen.getByRole("radio", { name: /^Server$/i }));
+
+    await waitFor(() => {
+      expect(mockedGenerateArt).toHaveBeenCalled();
+    });
+
+    mockedGenerateArt.mockRejectedValueOnce(
+      new Error("NEXT_PUBLIC_API_URL is not set"),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Generate$/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /NEXT_PUBLIC_API_URL is not set/,
+    );
+  });
+
+  it("sends palette colors when using the server engine", async () => {
+    render(
+      <CanvasProvider>
+        <Home />
+      </CanvasProvider>,
+    );
+
+    await screen.findByRole("button", { name: /^Generate$/i });
+    fireEvent.click(screen.getByRole("radio", { name: /^Server$/i }));
 
     await waitFor(() => {
       expect(mockedGenerateArt).toHaveBeenCalled();

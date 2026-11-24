@@ -8,6 +8,7 @@ import ResponsiveCanvas from "./components/studio/ResponsiveCanvas";
 import { useGallery } from "./hooks/useGallery";
 import { useGenerateArt } from "./hooks/useGenerateArt";
 import { captureThumbnail, type GalleryItem } from "@/lib/gallery";
+import type { GenerationEngine } from "@/lib/generationEngine";
 import { colorsForPalette, type PaletteId } from "@/lib/palettes";
 import type { Algorithm } from "@/types/art";
 
@@ -15,10 +16,12 @@ const INITIAL_WIDTH = 800;
 const INITIAL_HEIGHT = 600;
 const INITIAL_NUM_ELEMENTS = 50;
 const INITIAL_ALGORITHM: Algorithm = "circles";
+const INITIAL_ENGINE: GenerationEngine = "local";
 
 export default function Home() {
   const { canvasRef, exportMetaRef } = useCanvas();
   const [algorithm, setAlgorithm] = useState<Algorithm>(INITIAL_ALGORITHM);
+  const [engine, setEngine] = useState<GenerationEngine>(INITIAL_ENGINE);
   const [width, setWidth] = useState(INITIAL_WIDTH);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
   const [numElements, setNumElements] = useState(INITIAL_NUM_ELEMENTS);
@@ -48,6 +51,7 @@ export default function Home() {
       numElements,
       seed: parsedSeed,
       colors,
+      engine,
     });
 
   useEffect(() => {
@@ -74,6 +78,7 @@ export default function Home() {
       seed: lastSeed,
       paletteId,
       customColors,
+      engine,
       thumbnail: captureThumbnail(canvas),
     });
     setSaveMessage("Saved to gallery");
@@ -81,6 +86,7 @@ export default function Home() {
     algorithm,
     canvasRef,
     customColors,
+    engine,
     height,
     lastSeed,
     loading,
@@ -104,6 +110,7 @@ export default function Home() {
     setSeedInput(String(item.seed));
     setPaletteId(item.paletteId);
     setCustomColors(item.customColors);
+    setEngine(item.engine);
   }, []);
 
   return (
@@ -111,7 +118,8 @@ export default function Home() {
       <main className="py-6">
         <p className="mb-6 max-w-xl text-sm text-neutral-600 dark:text-night-text">
           Tweak parameters live, lock a seed to refine a composition, and export
-          as PNG or SVG.
+          as PNG or SVG. Local mode keeps the UI snappy via a Web Worker; Server
+          mode uses the Python backend.
         </p>
 
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
@@ -140,6 +148,8 @@ export default function Home() {
           <ControlPanel
             algorithm={algorithm}
             onAlgorithmChange={setAlgorithm}
+            engine={engine}
+            onEngineChange={setEngine}
             width={width}
             onWidthChange={setWidth}
             height={height}

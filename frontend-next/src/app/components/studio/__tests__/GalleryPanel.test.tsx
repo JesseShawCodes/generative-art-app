@@ -12,6 +12,7 @@ const item: GalleryItem = {
   seed: 99,
   paletteId: "bloom",
   customColors: [],
+  engine: "local",
   thumbnail: "data:image/jpeg;base64,abc",
 };
 

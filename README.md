@@ -87,15 +87,24 @@ pick only from that palette; omit it for unconstrained random colors.
 
 The home page is a creative studio: live (debounced) parameter controls, seed
 lock/reuse, preset and custom palettes, regenerate without a page refresh, and
-PNG/SVG export. Generation stays on the Python backend; the canvas only renders
-and exports the returned geometry.
+PNG/SVG export.
+
+### Generation engines
+
+| Engine | Where it runs | Notes |
+|--------|---------------|-------|
+| **Local** (default) | Web Worker in the browser | Keeps the UI responsive; uses a seeded mulberry32 PRNG |
+| **Server** | Python FastAPI | Same algorithms as before; useful for parity with the API / future heavy work |
+
+Seeds are **not** interchangeable across engines (different RNGs). Gallery entries
+store which engine produced them so reload stays consistent.
 
 ### Gallery
 
 Saved compositions are stored in the browser via `localStorage` (key
 `pixelbloom-gallery`, capped at 40 items). Each entry keeps algorithm, seed,
-dimensions, element count, palette, and a small thumbnail so you can reload the
-same composition later. Nothing is synced to the server yet.
+engine, dimensions, element count, palette, and a small thumbnail so you can
+reload the same composition later. Nothing is synced to the server yet.
 
 ## CI
 

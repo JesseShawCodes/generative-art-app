@@ -20,6 +20,7 @@ const sampleInput = {
   seed: 42,
   paletteId: "bloom" as const,
   customColors: [] as string[],
+  engine: "local" as const,
   thumbnail: "data:image/jpeg;base64,abc",
 };
 
@@ -51,6 +52,13 @@ describe("gallery helpers", () => {
     expect(items).toHaveLength(2);
     expect(parseGalleryItems("not-json")).toEqual([]);
     expect(parseGalleryItems(null)).toEqual([]);
+  });
+
+  it("defaults missing engine to server for legacy rows", () => {
+    const legacy = { ...makeItem(), engine: undefined };
+    delete (legacy as { engine?: string }).engine;
+    const items = parseGalleryItems(JSON.stringify([legacy]));
+    expect(items[0]?.engine).toBe("server");
   });
 
   it("loads and saves via storage", () => {
