@@ -5,13 +5,55 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/generate-art": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/algorithms": {
+      "get": {
+        "tags": [
+          "algorithms"
+        ],
+        "summary": "List Algorithms",
+        "operationId": "list_algorithms_api_v1_algorithms_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlgorithmsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/generate-art": {
       "post": {
         "tags": [
           "generation"
         ],
         "summary": "Generate Art Endpoint",
-        "operationId": "generate_art_endpoint_generate_art_post",
+        "operationId": "generate_art_endpoint_api_v1_generate_art_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -45,24 +87,6 @@
           }
         }
       }
-    },
-    "/": {
-      "get": {
-        "summary": "Root",
-        "operationId": "root__get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -76,6 +100,39 @@
           "particles"
         ],
         "title": "Algorithm"
+      },
+      "AlgorithmInfo": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Algorithm"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "AlgorithmInfo"
+      },
+      "AlgorithmsResponse": {
+        "properties": {
+          "algorithms": {
+            "items": {
+              "$ref": "#/components/schemas/AlgorithmInfo"
+            },
+            "type": "array",
+            "title": "Algorithms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "algorithms"
+        ],
+        "title": "AlgorithmsResponse"
       },
       "ArtGenerationRequest": {
         "properties": {
@@ -234,14 +291,30 @@
       },
       "HealthResponse": {
         "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          },
           "message": {
             "type": "string",
-            "title": "Message"
+            "title": "Message",
+            "default": "Generative Art API is running!"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
           }
         },
         "type": "object",
         "required": [
-          "message"
+          "environment",
+          "version"
         ],
         "title": "HealthResponse"
       },

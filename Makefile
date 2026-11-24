@@ -31,6 +31,11 @@ setup-backend: ## Create venv and install backend (with dev deps)
 	@test -f $(BACKEND_DIR)/.env || cp $(BACKEND_DIR)/.env.example $(BACKEND_DIR)/.env
 	@echo "Backend ready. Activate with: source $(VENV)/bin/activate"
 
+.PHONY: lock-backend
+lock-backend: ## Refresh backend/requirements.lock from the current venv
+	@test -x $(PYTHON) || $(MAKE) setup-backend
+	cd $(BACKEND_DIR) && $(PYTHON) scripts/lock_requirements.py
+
 .PHONY: setup-frontend
 setup-frontend: ## Install frontend npm dependencies
 	npm --prefix $(FRONTEND_DIR) install

@@ -17,7 +17,7 @@ async function mockGenerateArt(
   handler: (requestCount: number) => { status: number; body: unknown },
 ) {
   let requestCount = 0;
-  await page.route("**/generate-art", async (route) => {
+  await page.route("**/api/v1/generate-art", async (route) => {
     requestCount += 1;
     const { status, body } = handler(requestCount);
     await route.fulfill({

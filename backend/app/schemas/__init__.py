@@ -1,5 +1,8 @@
 from app.schemas.generation import (
+    ALGORITHM_LABELS,
     Algorithm,
+    AlgorithmInfo,
+    AlgorithmsResponse,
     ArtElement,
     ArtGenerationRequest,
     ArtGenerationResponse,
@@ -13,7 +16,10 @@ from app.schemas.generation import (
 )
 
 __all__ = [
+    "ALGORITHM_LABELS",
     "Algorithm",
+    "AlgorithmInfo",
+    "AlgorithmsResponse",
     "ArtElement",
     "ArtGenerationRequest",
     "ArtGenerationResponse",
