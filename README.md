@@ -5,7 +5,7 @@ To start backend locally (from virtual env)
 Verify 
 ```
 python3 --version
-# Verify at least Python 3.10
+# Verify at least Python 3.11 (3.12 recommended; matches CI/Docker)
 python3 -m venv .venv
 ```
 
