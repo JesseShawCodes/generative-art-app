@@ -57,7 +57,6 @@ const CELL_OFFSETS: [number, number][] = [
 function FooterGrid() {
   const uid = useId().replace(/:/g, "");
   const patternId = `footer-grid-pattern-${uid}`;
-  const gradientId = `footer-grid-gradient-${uid}`;
 
   return (
     <svg
@@ -80,24 +79,8 @@ function FooterGrid() {
             d="M 1 0 H 0 V 1"
           />
         </pattern>
-        <linearGradient
-          id={gradientId}
-          x1="0"
-          x2="0"
-          y1="0"
-          y2="1"
-        >
-          <stop offset="0" stopColor="var(--footer-grid-canvas)" stopOpacity="0.85" />
-          <stop offset="0.45" stopColor="var(--footer-grid-canvas)" stopOpacity="0.15" />
-          <stop offset="1" stopColor="var(--footer-grid-canvas)" stopOpacity="0" />
-        </linearGradient>
       </defs>
 
-      <rect
-        fill="var(--footer-grid-canvas)"
-        height={VIEW_H}
-        width={VIEW_W}
-      />
       <rect
         fill={`url(#${patternId})`}
         height={VIEW_H}
@@ -106,11 +89,6 @@ function FooterGrid() {
       <path
         className="footer-grid__line"
         d={`M ${VIEW_W} 0 V ${VIEW_H} H 0`}
-      />
-      <rect
-        fill={`url(#${gradientId})`}
-        height={VIEW_H}
-        width={VIEW_W}
       />
 
       {CORNERS.map((corner, cornerIndex) => (

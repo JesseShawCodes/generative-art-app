@@ -3,7 +3,7 @@ import Link from 'next/link';
 const Navbar = () => {
   return (
     <nav
-      className="flex min-h-13 items-center bg-[#212529] text-white"
+      className="flex min-h-14 items-center bg-[#212529] text-white"
       role="navigation"
       aria-label="main navigation"
     >

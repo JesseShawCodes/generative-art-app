@@ -15,6 +15,6 @@ describe('Footer', () => {
   it('renders the decorative grid background', () => {
     const { container } = render(<Footer />);
     expect(container.querySelector('.footer-grid')).toBeInTheDocument();
-    expect(container.querySelector('rect[fill^="url(#footer-grid-gradient"]')).toBeInTheDocument();
+    expect(container.querySelector('rect[fill^="url(#footer-grid-pattern"]')).toBeInTheDocument();
   });
 });
