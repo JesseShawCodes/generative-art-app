@@ -87,6 +87,7 @@ describe("Home", () => {
     expect(screen.getByLabelText(/Generation engine/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Seed$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Color palette/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Brian Eno Mode/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Download PNG/i }),
     ).toBeInTheDocument();

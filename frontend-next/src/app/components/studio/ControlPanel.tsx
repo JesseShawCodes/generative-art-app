@@ -34,6 +34,8 @@ interface ControlPanelProps {
   onPaletteIdChange: (id: PaletteId) => void;
   customColors: string[];
   onCustomColorsChange: (colors: string[]) => void;
+  enoMode: boolean;
+  onEnoModeChange: (enabled: boolean) => void;
   loading: boolean;
   error: string | null;
   onGenerate: () => void;
@@ -64,6 +66,8 @@ export default function ControlPanel({
   onPaletteIdChange,
   customColors,
   onCustomColorsChange,
+  enoMode,
+  onEnoModeChange,
   loading,
   error,
   onGenerate,
@@ -217,6 +221,29 @@ export default function ControlPanel({
           onPaletteIdChange={onPaletteIdChange}
           onCustomColorsChange={onCustomColorsChange}
         />
+
+        <div className="mb-3">
+          <label
+            htmlFor="eno-mode-toggle"
+            className="flex cursor-pointer items-start gap-2"
+          >
+            <input
+              id="eno-mode-toggle"
+              type="checkbox"
+              checked={enoMode}
+              onChange={(event) => onEnoModeChange(event.target.checked)}
+              className="mt-1 h-4 w-4 accent-bloom"
+            />
+            <span>
+              <span className="block font-semibold text-bloom-dark dark:text-night-strong">
+                Brian Eno Mode
+              </span>
+              <span className="block text-xs text-neutral-500 dark:text-night-text">
+                Colors drift slowly over time, like ambient light.
+              </span>
+            </span>
+          </label>
+        </div>
 
         <div className="mb-3 flex flex-wrap gap-2">
           <button

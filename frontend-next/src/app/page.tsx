@@ -31,6 +31,7 @@ export default function Home() {
   const [seedInput, setSeedInput] = useState("");
   const [paletteId, setPaletteId] = useState<PaletteId>("bloom");
   const [customColors, setCustomColors] = useState<string[]>([]);
+  const [enoMode, setEnoMode] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const { items, saveItem, deleteItem } = useGallery();
@@ -138,6 +139,7 @@ export default function Home() {
               artData={artData}
               width={width}
               height={height}
+              enoMode={enoMode}
             />
             {loading && (
               <p className="mt-2 text-xs text-neutral-500 dark:text-night-text">
@@ -178,6 +180,8 @@ export default function Home() {
             onPaletteIdChange={setPaletteId}
             customColors={customColors}
             onCustomColorsChange={setCustomColors}
+            enoMode={enoMode}
+            onEnoModeChange={setEnoMode}
             loading={loading}
             error={error}
             onGenerate={generate}
